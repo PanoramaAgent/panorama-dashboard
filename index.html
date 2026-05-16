@@ -6,8 +6,10 @@
 <title>Panorama F&S — Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f87ff'/><text x='16' y='23' font-family='Arial' font-size='20' font-weight='700' fill='white' text-anchor='middle'>P</text></svg>">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f87ff'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='18' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- Preconnect to speed up Chart.js load -->
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
 <style>
 :root{
   --bg:#0b1120;--s1:#111827;--s2:#1a2236;--s3:#243050;--s4:#2e3d5c;
@@ -20,7 +22,8 @@
   --teal:#06b6d4;--teal-bg:rgba(6,182,212,.14);
   --mint:#34d399;--mint-bg:rgba(52,211,153,.14);
   --purple:#a78bfa;--purple-bg:rgba(167,139,250,.14);
-  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --mono:'SF Mono','SFMono-Regular','Consolas','Liberation Mono','Menlo',monospace;
   --r:10px;--rs:6px;
   --sh:0 1px 4px rgba(0,0,0,.4);
 }
@@ -1008,12 +1011,19 @@ function renderGastos(rows){
   </tr>`).join('');
 }
  
-// Wait for full page load (ensures Chart.js CDN is ready) then auto-load
-if(document.readyState==='complete'){
-  loadAll();
-}else{
-  window.addEventListener('load', loadAll);
+// Wait for Chart.js to load (deferred) then init
+function init(){
+  if(typeof Chart==='undefined'){
+    setTimeout(init,50);
+    return;
+  }
+  if(document.readyState==='complete'||document.readyState==='interactive'){
+    loadAll();
+  }else{
+    window.addEventListener('DOMContentLoaded',loadAll);
+  }
 }
+init();
 </script>
 </body>
 </html>
