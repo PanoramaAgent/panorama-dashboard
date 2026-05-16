@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panorama F&S — Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f87ff'/><text x='16' y='23' font-family='Arial' font-size='20' font-weight='700' fill='white' text-anchor='middle'>P</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f87ff'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='18' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0b1120;--s1:#111827;--s2:#1a2236;--s3:#243050;--s4:#2e3d5c;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);
+  --tx:#e8edf5;--tx2:#94a3b8;--tx3:#64748b;
+  --blue:#4f87ff;--blue-d:#1d4ed8;--blue-bg:rgba(79,135,255,.12);
+  --green:#10b981;--green-bg:rgba(16,185,129,.14);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.14);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.14);
+  --teal:#06b6d4;--teal-bg:rgba(6,182,212,.14);
+  --mint:#34d399;--mint-bg:rgba(52,211,153,.14);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,.14);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r:10px;--rs:6px;
+  --sh:0 1px 4px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px;min-height:100vh}
+
+.app{max-width:1280px;margin:0 auto;padding:24px 24px 60px}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--bd)}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.logo{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:#fff;flex-shrink:0}
+.h-title{font-size:17px;font-weight:600;letter-spacing:-.2px;color:var(--tx)}
+.h-sub{font-size:11px;color:var(--tx3);margin-top:1px;font-family:var(--mono)}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.btn-ref{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2);padding:6px 14px;border-radius:var(--rs);font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:500;transition:all .15s}
+.btn-ref:hover{background:var(--s3);color:var(--tx)}
+.btn-cfg{background:none;border:none;color:var(--tx3);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:var(--rs);transition:color .15s;line-height:1}
+.btn-cfg:hover{color:var(--tx2)}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx3);font-family:var(--mono);padding:4px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:20px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--tx3);flex-shrink:0}
+.dot.live{background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* API Panel */
+.api-panel{background:var(--blue-bg);border:1px solid rgba(79,135,255,.3);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;display:none;align-items:center;gap:12px;flex-wrap:wrap}
+.api-panel p{font-size:12px;color:#93c5fd;flex:1;min-width:200px;line-height:1.6}
+.api-panel a{color:var(--blue)}
+.api-row{display:flex;gap:8px}
+.api-in{background:var(--s1);border:1px solid rgba(79,135,255,.4);border-radius:var(--rs);padding:6px 12px;color:var(--tx);font-family:var(--mono);font-size:12px;outline:none;width:300px}
+.api-in:focus{border-color:var(--blue)}
+.api-btn{border:none;border-radius:var(--rs);padding:6px 14px;color:#fff;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer}
+
+/* Error */
+.err{background:var(--red-bg);border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:14px;display:none}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:20px}
+.tab{padding:9px 18px;font-size:13px;font-weight:500;color:var(--tx3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;border-radius:var(--rs) var(--rs) 0 0}
+.tab:hover{color:var(--tx2);background:var(--s2)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.c-blue::before{background:var(--blue)}
+.kpi.c-green::before{background:var(--green)}
+.kpi.c-red::before{background:var(--red)}
+.kpi.c-amber::before{background:var(--amber)}
+.kpi.c-teal::before{background:var(--teal)}
+.kpi-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);margin-bottom:6px}
+.kpi-val{font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1.1}
+.kpi-val.blue{color:var(--blue)}.kpi-val.green{color:var(--green)}.kpi-val.red{color:var(--red)}.kpi-val.amber{color:var(--amber)}.kpi-val.teal{color:var(--teal)}
+.kpi-sub{font-size:10px;color:var(--tx3);margin-top:4px}
+
+/* Section heading */
+.sh{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:10px}
+
+/* Cards */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px}
+.card-hd{padding:16px 18px 0}
+.card-title{font-size:13px;font-weight:600;color:var(--tx)}
+.card-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.card-body{padding:14px 18px 18px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0 8px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
+.leg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.chart-wrap{position:relative;width:100%}
+
+/* Tables */
+.tbl-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.tbl-bar{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:8px 14px;text-align:right;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);background:var(--s2);border-bottom:1px solid var(--bd);white-space:nowrap}
+thead th:first-child,thead th.al{text-align:left}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody tr.cur{background:var(--blue-bg)}
+td{padding:9px 14px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--tx2);white-space:nowrap}
+td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;color:var(--tx)}
+.pos{color:var(--green);font-weight:500}
+.neg{color:var(--red);font-weight:500}
+.teal-v{color:var(--teal);font-weight:500}
+.teal-n{color:var(--red);font-weight:500}
+
+/* Badges */
+.bdg{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500;font-family:var(--mono);white-space:nowrap}
+.bdg-gray{background:var(--s3);color:var(--tx3);border:1px solid var(--bd)}
+.bdg-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,135,255,.3)}
+.bdg-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.bdg-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.bdg-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+
+/* Category pills */
+.cat{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500;font-family:var(--mono)}
+.cat-nomina   {background:rgba(167,139,250,.18);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+.cat-importacion{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,135,255,.3)}
+.cat-impuesto {background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.cat-prestamo {background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.cat-credito  {background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.cat-bono     {background:var(--teal-bg);color:var(--teal);border:1px solid rgba(6,182,212,.3)}
+.cat-extra    {background:var(--mint-bg);color:var(--mint);border:1px solid rgba(52,211,153,.3)}
+.cat-otro     {background:var(--s3);color:var(--tx3);border:1px solid var(--bd)}
+
+.no-data{padding:28px;text-align:center;color:var(--tx3);font-size:12px}
+
+/* AP week groups */
+.ap-week{margin-bottom:16px}
+.ap-week-hd{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r) var(--r) 0 0;border-bottom:none}
+.ap-week-iso{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--blue)}
+.ap-week-dates{font-size:10px;color:var(--tx3)}
+.ap-week-total{margin-left:auto;font-size:12px;font-weight:600;color:var(--red);font-family:var(--mono)}
+.ap-week-table{background:var(--s1);border:1px solid var(--bd);border-radius:0 0 var(--r) var(--r);overflow:hidden}
+.bdg-proforma{background:rgba(245,158,11,.2);color:var(--amber);border:1px solid rgba(245,158,11,.4);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);font-weight:500}
+.bdg-pendiente{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,135,255,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono)}
+.bdg-na{background:var(--s3);color:var(--tx3);border:1px solid var(--bd);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="logo">P</div>
+    <div>
+      <div class="h-title">Panorama F&S — Dashboard</div>
+      <div class="h-sub" id="last-ts">cargando...</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div class="live-badge"><span class="dot" id="sdot"></span><span id="stxt">estático</span></div>
+    <button class="btn-cfg" onclick="toggleApi()" title="API Key">⚙</button>
+    <button class="btn-ref" onclick="loadAll()">↺ Actualizar</button>
+  </div>
+</div>
+
+<!-- API Panel -->
+<div class="api-panel" id="api-panel">
+  <p><strong>Google Sheets API Key</strong> — ambos sheets deben ser públicos de lectura.<br>
+  <a href="#" onclick="showHelp();return false">¿Cómo configurar?</a></p>
+  <div class="api-row">
+    <input class="api-in" id="apiKey" type="password" placeholder="AIzaSy..."/>
+    <button class="api-btn" style="background:var(--blue)" onclick="saveKey()">Guardar</button>
+    <button class="api-btn" style="background:var(--tx3)" onclick="clearKey()">Borrar</button>
+  </div>
+</div>
+
+<div class="err" id="err"></div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('flujo',this)">Flujo de Caja</button>
+  <button class="tab" onclick="switchTab('ap',this)">Cuentas por Pagar</button>
+  <button class="tab" onclick="switchTab('cfdi',this)">Pendientes de CFDI</button>
+  <button class="tab" onclick="switchTab('gastos',this)">Gastos</button>
+</div>
+
+<!-- ═══ FLUJO ═══ -->
+<div class="tab-panel active" id="tab-flujo">
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <p class="sh">Saldo Proyectado — 12 semanas</p>
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Saldo Proyectado</div>
+      <div class="card-sub">Posición acumulada semana a semana</div>
+    </div>
+    <div class="card-body">
+      <div class="legend">
+        <span class="leg"><span class="leg-sq" style="background:#4f87ff"></span>Saldo positivo</span>
+        <span class="leg"><span class="leg-sq" style="background:#ef4444"></span>Saldo negativo</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="saldoChart" role="img" aria-label="Área saldo proyectado por semana"></canvas></div>
+    </div>
+  </div>
+
+  <p class="sh">Entradas vs Salidas — 12 semanas</p>
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Entradas vs Salidas</div>
+      <div class="card-sub">IN = AR Cobro + Crédito · OUT = AP Pendiente + Gastos · punto = NETO semanal</div>
+    </div>
+    <div class="card-body">
+      <div class="legend">
+        <span class="leg"><span class="leg-sq" style="background:#10b981"></span>AR Cobro</span>
+        <span class="leg"><span class="leg-sq" style="background:#4f87ff"></span>Crédito</span>
+        <span class="leg"><span class="leg-sq" style="background:#ef4444"></span>AP Pendiente</span>
+        <span class="leg"><span class="leg-sq" style="background:#f59e0b"></span>Gastos</span>
+        <span class="leg"><span class="leg-sq" style="background:#e8edf5;border-radius:50%"></span>NETO</span>
+      </div>
+      <div class="chart-wrap" style="height:280px"><canvas id="flowChart" role="img" aria-label="Barras apiladas entradas y salidas por semana"></canvas></div>
+    </div>
+  </div>
+
+  <p class="sh">Detalle semanal</p>
+  <div class="tbl-wrap">
+    <div class="tbl-bar">
+      <span style="font-size:12px;font-weight:500;color:var(--tx2)">Semanas W20 – W31</span>
+      <span style="font-size:10px;color:var(--tx3);font-family:var(--mono)">MXN pesos</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Semana</th><th>IN AR</th><th>IN Cred</th><th>OUT AP</th><th>OUT Gastos</th><th>NETO</th><th>Saldo Proy</th>
+        </tr></thead>
+        <tbody id="flow-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AP ═══ -->
+<div class="tab-panel" id="tab-ap">
+  <p class="sh">Cuentas por pagar pendientes — agrupadas por semana</p>
+  <div id="ap-weeks-container"><div class="no-data" style="padding:28px;text-align:center;color:var(--tx3)">Cargando...</div></div>
+</div>
+
+<!-- ═══ CFDI ═══ -->
+<div class="tab-panel" id="tab-cfdi">
+  <p class="sh">Facturas pagadas sin CFDI — AP Pagado · Folio Fiscal = N/A</p>
+  <div class="tbl-wrap">
+    <div class="tbl-bar">
+      <span style="font-size:12px;font-weight:500;color:var(--tx)">Pendientes de CFDI</span>
+      <span class="bdg bdg-red" id="cfdi-cnt">–</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th class="al">Fecha Pago</th>
+          <th class="al">Factura / PO</th>
+          <th class="al">Proveedor</th>
+          <th>Total</th>
+          <th>Importe Pagado</th>
+          <th class="al">Ref. SPEI</th>
+        </tr></thead>
+        <tbody id="cfdi-tbody"><tr><td colspan="6" class="no-data">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GASTOS ═══ -->
+<div class="tab-panel" id="tab-gastos">
+  <p class="sh">Nómina recurrente</p>
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-body" style="padding:14px 18px">
+      <table style="width:100%">
+        <thead><tr>
+          <th class="al">Tipo</th><th class="al">Día</th><th class="al">Frecuencia</th><th>Monto por ocurrencia</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="al"><span class="cat cat-nomina">Nómina</span> Semanal</td>
+            <td class="al" style="color:var(--tx3)">Viernes</td>
+            <td class="al" style="color:var(--tx3)">Semanal</td>
+            <td id="pay-sem">$65,000</td>
+          </tr>
+          <tr>
+            <td class="al"><span class="cat cat-nomina">Nómina</span> Quincenal</td>
+            <td class="al" style="color:var(--tx3)">Días 1 y 15</td>
+            <td class="al" style="color:var(--tx3)">Quincenal</td>
+            <td id="pay-quin">$80,000</td>
+          </tr>
+          <tr style="border-bottom:none">
+            <td class="al"><span class="cat cat-nomina">Nómina</span> Mensual</td>
+            <td class="al" style="color:var(--tx3)">Día 25</td>
+            <td class="al" style="color:var(--tx3)">Mensual</td>
+            <td id="pay-men">$615,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="sh">Gastos adicionales</p>
+  <div class="tbl-wrap">
+    <div class="tbl-bar">
+      <span style="font-size:12px;font-weight:500;color:var(--tx2)">Entradas manuales en GASTOS tab</span>
+      <span style="font-size:10px;color:var(--tx3);font-family:var(--mono)" id="gastos-ttl"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th class="al">Descripción</th>
+          <th class="al">Categoría</th>
+          <th class="al">Frecuencia</th>
+          <th class="al">Semana ISO</th>
+          <th>Monto</th>
+        </tr></thead>
+        <tbody id="gastos-tbody"><tr><td colspan="5" class="no-data">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DASH_ID='1u6z9tURJUOiJcVAewj8AIZ88B-F8k0LPZ_nEe72avOo';
+const AP_ID  ='1nrNU5PDY_bnbMBC77OHYKCW0_fQwbs4u17Q7Sa7khbo';
+
+// Static fallback — live values from sheet May 14, 2026
+const STATIC={
+  saldo:303570.65,
+  weeks:[
+    {iso:'W20',lunes:'11/05',inAR:88781.18,    inCred:0, outAP:1038434.43, outG:145000,   neto:-1094653.25, sp:-791082.60},
+    {iso:'W21',lunes:'18/05',inAR:10014624,    inCred:0, outAP:1343760,    outG:2415000,  neto:6255864,     sp:5464781.40},
+    {iso:'W22',lunes:'25/05',inAR:0,           inCred:0, outAP:1031894.81, outG:680000,   neto:-1711894.81, sp:3752886.59},
+    {iso:'W23',lunes:'01/06',inAR:238464,      inCred:0, outAP:14263.88,   outG:2155000,  neto:-1930799.88, sp:1822086.71},
+    {iso:'W24',lunes:'08/06',inAR:206682.84,   inCred:0, outAP:322388.98,  outG:65000,    neto:-180706.14,  sp:1641380.57},
+    {iso:'W25',lunes:'15/06',inAR:4860034.56,  inCred:0, outAP:0,          outG:1545000,  neto:3315034.56,  sp:4956415.13},
+    {iso:'W26',lunes:'22/06',inAR:2410767.36,  inCred:0, outAP:0,          outG:680000,   neto:1730767.36,  sp:6687182.49},
+    {iso:'W27',lunes:'29/06',inAR:0,           inCred:0, outAP:0,          outG:145000,   neto:-145000,     sp:6542182.49},
+    {iso:'W28',lunes:'06/07',inAR:0,           inCred:0, outAP:0,          outG:325000,   neto:-325000,     sp:6217182.49},
+    {iso:'W29',lunes:'13/07',inAR:0,           inCred:0, outAP:0,          outG:145000,   neto:-145000,     sp:6072182.49},
+    {iso:'W30',lunes:'20/07',inAR:0,           inCred:0, outAP:0,          outG:680000,   neto:-680000,     sp:5392182.49},
+    {iso:'W31',lunes:'27/07',inAR:0,           inCred:0, outAP:0,          outG:145000,   neto:-145000,     sp:5247182.49},
+  ],
+  kpis:{ar:17819353.94,ap:3750742.10,gastos:9125000,cred:0,neta:5247182.49,flags:1}
+};
+
+// Static CFDI — AP Pagado rows where Folio Fiscal = N/A as of May 14
+// Note: B71476 now has UUID 4C18FCA7... and V07001561 is N/A (PO paid, awaiting CFDI)
+const STATIC_CFDI=[
+  {fechaPago:'07/05/2026',factura:'TA2025-0313',proveedor:'CARGO Y LOGISTICA DEL CENTRO SA DE CV',total:101005,    importePagado:101005,    refSPEI:'Vacio y almacenaje LZO26 00548'},
+  {fechaPago:'08/05/2026',factura:'—',           proveedor:'GRUPO NUTRISA',                        total:0,         importePagado:54975.88,  refSPEI:'Pago intereses al 30 de abril'},
+  {fechaPago:'08/05/2026',factura:'V07001561',   proveedor:'CUANDA, S.A. DE C.V.',                 total:1461370.79,importePagado:1461370.79,refSPEI:'Pago F V07001561'},
+];
+
+let flowCh=null,saldoCh=null;
+
+// Helpers
+function M(v,sign=false){
+  const a=Math.abs(v);
+  let s;
+  if(a>=1e6)s='$'+(a/1e6).toFixed(2)+'M';
+  else if(a>=1e3)s='$'+Math.round(a/1e3).toLocaleString('es-MX')+'k';
+  else s='$'+Math.round(a).toLocaleString('es-MX');
+  if(v<0)return'-'+s;
+  if(sign&&v>0)return'+'+s;
+  return s;
+}
+function pMXN(v){
+  if(!v&&v!==0)return 0;
+  // Sheets API sometimes returns "\-$1,234" with a backslash before the minus
+  const s=String(v).replace(/\\/g,'').replace(/[$,\s()]/g,'');
+  const n=parseFloat(s);
+  return isNaN(n)?0:n;
+}
+function fDate(v){
+  if(!v)return'—';
+  const s=String(v).trim();
+  const MES=['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  // DD/MM/YYYY
+  if(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(s)){const[d,m,y]=s.split('/');return d+'/'+MES[+m]+(y?'/'+(y.length===4?y.slice(2):y):'');}
+  // YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)){const p=s.split('-');return p[2]+'/'+MES[+p[1]]+'/'+(p[0].slice(2));}
+  return s;
+}
+function catCls(c){
+  if(!c)return'cat-otro';
+  const l=c.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(l.includes('nomina'))return'cat-nomina';
+  if(l.includes('importa'))return'cat-importacion';
+  if(l.includes('impuesto'))return'cat-impuesto';
+  if(l.includes('prestamo'))return'cat-prestamo';
+  if(l.includes('credito'))return'cat-credito';
+  if(l.includes('bono'))return'cat-bono';
+  if(l.includes('extra'))return'cat-extra';
+  return'cat-otro';
+}
+function isNomina(r){
+  const d=(r.desc||'').toLowerCase(), c=(r.cat||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return c.includes('nomina')&&(d.includes('semanal')||d.includes('quincenal')||d.includes('mensual'));
+}
+
+// ── Date helpers ──
+function parseDateStr(s){
+  if(!s)return null;
+  // dd/MM/yyyy
+  const m1=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m1)return new Date(+m1[3],+m1[2]-1,+m1[1]);
+  // yyyy-MM-dd or ISO timestamp
+  const d=new Date(s);
+  return isNaN(d.getTime())?null:d;
+}
+function isoWeekStr(d){
+  const dt=new Date(d); dt.setHours(0,0,0,0);
+  dt.setDate(dt.getDate()+3-((dt.getDay()+6)%7));
+  const w1=new Date(dt.getFullYear(),0,4);
+  const wn=1+Math.round(((dt-w1)/86400000-3+((w1.getDay()+6)%7))/7);
+  return dt.getFullYear()+'-W'+String(wn).padStart(2,'0');
+}
+
+// ── UI ──
+function toggleApi(){const p=document.getElementById('api-panel');p.style.display=p.style.display==='flex'?'none':'flex';}
+function saveKey(){const k=document.getElementById('apiKey').value.trim();if(!k)return;localStorage.setItem('pf_k',k);document.getElementById('api-panel').style.display='none';loadAll();}
+function clearKey(){localStorage.removeItem('pf_k');document.getElementById('apiKey').value='';loadAll();}
+function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',8000);}
+function switchTab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+n).classList.add('active');}
+function showHelp(){alert('1. console.cloud.google.com → proyecto PA Dashboard Claude\n2. APIs y servicios → Biblioteca → "Google Sheets API" → Habilitar\n3. Credenciales → + Crear credenciales → Clave de API\n4. Editar → Restricciones de API → Google Sheets API\n5. En AMBOS sheets: Compartir → Cualquier persona con el link → Lector\n6. Pegar el key aquí y hacer clic Guardar');}
+function setStatus(live){
+  document.getElementById('sdot').className='dot'+(live?' live':'');
+  document.getElementById('stxt').textContent=live?'live · Google Sheets':'estático';
+  document.getElementById('last-ts').textContent='Flujo 12 semanas · '+new Date().toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+// Fetch
+async function batchGet(id,ranges,key){
+  const q=ranges.map(r=>'ranges='+encodeURIComponent(r)).join('&');
+  const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values:batchGet?${q}&key=${key}`);
+  if(!res.ok){const j=await res.json().catch(()=>({}));throw new Error('HTTP '+res.status+(j.error?.message?' – '+j.error.message:''));}
+  return (await res.json()).valueRanges;
+}
+
+// Main load
+async function loadAll(){
+  const key=localStorage.getItem('pf_k');
+  if(!key){setStatus(false);renderFlujo(STATIC);renderAP([]);renderCFDI(STATIC_CFDI);renderGastos([]);return;}
+
+  let dashData=STATIC, cfdiRows=STATIC_CFDI, gastosRows=[];
+
+  // Pre-Dashboard
+  try{
+    const vr=await batchGet(DASH_ID,[
+      'WEEKLY_SUMMARY!B2',      // [0] saldo
+      'WEEKLY_SUMMARY!A6:K17',  // [1] weekly rows — cols A-K
+      'WEEKLY_SUMMARY!E22:E27', // [2] KPIs
+      'GASTOS!A1:G300',         // [3] full gastos tab
+      'GASTOS!D2:D4',           // [4] payroll config: Semanal, Quincenal, Mensual
+    ],key);
+
+    const saldo=pMXN(vr[0].values?.[0]?.[0])||150000;
+
+    const weeks=(vr[1].values||[]).map((r,i)=>({
+      iso:  r[1]||'W'+(20+i),
+      lunes:r[2]?String(r[2]).slice(0,5):'',
+      inAR: pMXN(r[4]),
+      inCred:pMXN(r[5]),
+      outAP:pMXN(r[6]),
+      outG: pMXN(r[7]),
+      neto: pMXN(r[8]),
+      sp:   pMXN(r[9]),
+    }));
+
+    const kv=(vr[2].values||[]).map(r=>pMXN(r[0]));
+    const kpis={ar:kv[0]||0,ap:kv[1]||0,gastos:kv[2]||0,cred:kv[3]||0,neta:kv[4]||0,flags:kv[5]||0};
+
+    dashData={saldo,weeks,kpis};
+
+    // Update live payroll amounts from GASTOS!D2:D4 config cells
+    const payCfg=vr[4].values||[];
+    const configSem  = pMXN(payCfg[0]?.[0]);
+    const configQuin = pMXN(payCfg[1]?.[0]);
+    const configMen  = pMXN(payCfg[2]?.[0]);
+    if(configSem)  document.getElementById('pay-sem').textContent  = M(configSem);
+    if(configQuin) document.getElementById('pay-quin').textContent = M(configQuin);
+    if(configMen)  document.getElementById('pay-men').textContent  = M(configMen);
+
+    // Parse GASTOS tab data rows (col A = strict integer row#)
+    const gAll=vr[3].values||[];
+    gastosRows=gAll
+      .filter(r=>{
+        const raw=String(r[0]||'').trim();
+        const num=Number(raw);
+        // Must be a strict positive integer (row numbers like "1","22" — not text headers)
+        const isRowNum=raw!==''&&Number.isInteger(num)&&num>0;
+        const imp=pMXN(r[3]);
+        return isRowNum&&imp>0;
+      })
+      .map(r=>({desc:r[1]||'',cat:r[2]||'',freq:r[5]||'',monto:pMXN(r[3]),dia:r[4]||'',iso:r[6]||''}))
+      .filter(r=>!isNomina(r));
+
+    setStatus(true);
+  }catch(e){
+    showErr('Error Pre-Dashboard: '+e.message);
+    setStatus(false);
+  }
+
+  // AP Pending — fetch source cols and ISO col separately to avoid sparse-row index issues
+  let apPendingRows=[];
+  try{
+    // Fetch source data (cols A-S = indices 0-18) and ISO week col X separately
+    const apDr=await batchGet(DASH_ID,[
+      'DATA_AP!A3:S501',   // [0] source data: Fecha(A), Factura(B), Folio(C), Proveedor(D), RFC(E), Desc(F)...Total(M=idx12)...Status(R=idx17), FechaVenc(S=idx18)
+      'DATA_AP!X3:X501',   // [1] Semana ISO (col X, derived by refreshDataAP)
+    ],key);
+    const apSrc=apDr[0].values||[];
+    const apIso=apDr[1].values||[];
+
+    apPendingRows=apSrc
+      .map((r,i)=>{
+        const status=String(r[17]||'').trim().toLowerCase();
+        const total=pMXN(r[12]);
+        if(total<=0||status==='pagado') return null;
+        // Use col X ISO if available, otherwise derive from Fecha Vencimiento
+        let iso=String(apIso[i]?.[0]||'').trim();
+        if(!iso){
+          const vd=parseDateStr(String(r[18]||'').trim());
+          if(vd) iso=isoWeekStr(vd);
+        }
+        return{
+          fecha:    r[0]||'',
+          factura:  r[1]||'',
+          proveedor:r[3]||'',
+          desc:     r[5]||'',
+          total,
+          status:   r[17]||'',
+          vence:    r[18]||'',
+          iso,
+        };
+      })
+      .filter(Boolean);
+  }catch(e){
+    showErr('Error AP tab: '+e.message);
+  }
+
+  // AP Pagado — CFDI check
+  try{
+    const apVr=await batchGet(AP_ID,['AP — Pagado!A2:X300'],key);
+    const rows=apVr[0].values||[];
+    // Col B (idx 1) = No. Factura/PO  Col C (idx 2) = Folio Fiscal
+    // Col D (idx 3) = Proveedor  Col M (idx 12) = Total  Col V (idx 21) = Importe Pagado
+    // Col U (idx 20) = Fecha de Pago  Col W (idx 22) = Referencia SPEI
+    const parsed=rows.filter(r=>r.length>1); // skip fully empty
+    cfdiRows=parsed
+      .filter(r=>{
+        const folio=(r[2]||'').trim();
+        return folio===''||folio==='N/A'||folio.toLowerCase()==='n/a';
+      })
+      .map(r=>({
+        fechaPago: r[20]||r[0]||'',
+        factura:   r[1]||'—',
+        proveedor: r[3]||'—',
+        total:     pMXN(r[12]),
+        importePagado: pMXN(r[21]),
+        refSPEI:   r[22]||'—',
+      }));
+  }catch(e){
+    showErr('Error AP sheet (CFDI): '+e.message+'. Mostrando datos estáticos en tab CFDI.');
+    // keep static_cfdi
+  }
+
+  renderFlujo(dashData);
+  renderAP(apPendingRows);
+  renderCFDI(cfdiRows);
+  renderGastos(gastosRows);
+}
+
+// ── Render Flujo ──
+function renderFlujo(d){renderKPIs(d);renderCharts(d);renderTable(d);}
+
+function renderKPIs(d){
+  const cfg=[
+    {lbl:'Saldo Bancario',   val:d.saldo,      cls:'c-blue', vcls:'blue', sub:'actualizar cada viernes'},
+    {lbl:'Por Cobrar AR',    val:d.kpis.ar,    cls:'c-green',vcls:'green',sub:'12 semanas abiertas'},
+    {lbl:'AP Pendiente',     val:d.kpis.ap,    cls:'c-red',  vcls:'red',  sub:'por pagar'},
+    {lbl:'Gastos Fijos 12s', val:d.kpis.gastos,cls:'c-amber',vcls:'amber',sub:'nómina + operativos'},
+    {lbl:'Posición Neta Real',val:d.kpis.neta, cls:'c-teal', vcls:d.kpis.neta>=0?'teal':'red',sub:'AR – AP – Gastos'},
+  ];
+  document.getElementById('kpi-grid').innerHTML=cfg.map(k=>`
+    <div class="kpi ${k.cls}">
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val ${k.vcls}">${M(k.val)}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+function renderCharts(d){
+  if(flowCh){flowCh.destroy();flowCh=null;}
+  if(saldoCh){saldoCh.destroy();saldoCh=null;}
+
+  const labels=d.weeks.map(w=>w.iso);
+  const gc='rgba(255,255,255,.06)', tc='#64748b';
+  const tf=v=>{const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6)return s+'$'+(a/1e6).toFixed(1)+'M';if(a>=1e3)return s+'$'+Math.round(a/1e3)+'k';return s+'$'+Math.round(a);};
+  const tt={backgroundColor:'#1a2236',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#94a3b8',padding:10};
+
+  flowCh=new Chart(document.getElementById('flowChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'AR Cobro',    data:d.weeks.map(w=>w.inAR),    backgroundColor:'rgba(16,185,129,.8)', stack:'in'},
+      {label:'Crédito',     data:d.weeks.map(w=>w.inCred),  backgroundColor:'rgba(79,135,255,.8)', stack:'in'},
+      {label:'AP Pendiente',data:d.weeks.map(w=>-w.outAP),  backgroundColor:'rgba(239,68,68,.65)', stack:'out'},
+      {label:'Gastos',      data:d.weeks.map(w=>-w.outG),   backgroundColor:'rgba(245,158,11,.65)',stack:'out'},
+      {label:'NETO',        data:d.weeks.map(w=>w.neto),    type:'line',
+       borderColor:'transparent',backgroundColor:'transparent',
+       pointBackgroundColor:d.weeks.map(w=>w.neto>=0?'#10b981':'#ef4444'),
+       pointRadius:4,pointHoverRadius:6,borderWidth:0,tension:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' '+c.dataset.label+': '+tf(c.raw)}}},
+      scales:{
+        x:{stacked:true,ticks:{color:tc,font:{size:10}},grid:{color:gc}},
+        y:{stacked:true,ticks:{color:tc,font:{size:10},callback:tf},grid:{color:gc}}
+      }
+    }
+  });
+
+  // Saldo chart with red below zero
+  const spData=d.weeks.map(w=>w.sp);
+  const minSP=Math.min(...spData,0);
+  const maxSP=Math.max(...spData,0);
+
+  saldoCh=new Chart(document.getElementById('saldoChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      // Positive area (blue)
+      {label:'Saldo +',data:spData,
+       borderColor:ctx=>{
+         // segment color: blue if positive, red if negative
+         return '#4f87ff';
+       },
+       segment:{
+         borderColor:ctx=>{
+           const v=ctx.p1.parsed.y;
+           return v<0?'#ef4444':'#4f87ff';
+         }
+       },
+       backgroundColor:ctx=>{
+         const {ctx:c,chartArea}=ctx.chart;
+         if(!chartArea)return'rgba(79,135,255,.1)';
+         // Gradient: blue above zero, red below
+         const zeroY=ctx.chart.scales.y.getPixelForValue(0);
+         const top=chartArea.top, bot=chartArea.bottom;
+         const g=c.createLinearGradient(0,top,0,bot);
+         // ratio of where zero sits
+         const zr=Math.max(0,Math.min(1,(zeroY-top)/(bot-top)));
+         if(zr<=0){g.addColorStop(0,'rgba(239,68,68,.2)');g.addColorStop(1,'rgba(239,68,68,.04)');}
+         else if(zr>=1){g.addColorStop(0,'rgba(79,135,255,.2)');g.addColorStop(1,'rgba(79,135,255,.04)');}
+         else{
+           g.addColorStop(0,'rgba(79,135,255,.2)');
+           g.addColorStop(zr,'rgba(79,135,255,.1)');
+           g.addColorStop(zr,'rgba(239,68,68,.15)');
+           g.addColorStop(1,'rgba(239,68,68,.04)');
+         }
+         return g;
+       },
+       pointBackgroundColor:spData.map(v=>v>=0?'#4f87ff':'#ef4444'),
+       pointRadius:4,pointHoverRadius:6,borderWidth:2,fill:true,tension:0.3
+      },
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' Saldo: '+tf(c.raw)}}},
+      scales:{
+        x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},
+        y:{
+          ticks:{color:tc,font:{size:10},callback:tf},
+          grid:{
+            color:ctx=>ctx.tick.value===0?'rgba(239,68,68,.4)':gc,
+            lineWidth:ctx=>ctx.tick.value===0?1.5:1,
+          },
+          min:minSP<0?minSP*1.1:undefined,
+        }
+      }
+    }
+  });
+
+  // Draw red zone below zero
+  Chart.register({
+    id:'redZone',
+    beforeDraw(chart){
+      if(chart.canvas.id!=='saldoChart')return;
+      const {ctx,chartArea,scales:{y}}=chart;
+      if(!chartArea||minSP>=0)return;
+      const zeroY=y.getPixelForValue(0);
+      if(zeroY>=chartArea.bottom)return;
+      ctx.save();
+      ctx.fillStyle='rgba(239,68,68,.07)';
+      ctx.fillRect(chartArea.left,zeroY,chartArea.right-chartArea.left,chartArea.bottom-zeroY);
+      ctx.restore();
+    }
+  });
+}
+
+function renderTable(d){
+  document.getElementById('flow-tbody').innerHTML=d.weeks.map((w,i)=>`
+    <tr class="${i===0?'cur':''}">
+      <td class="al">${w.lunes}<span class="bdg ${i===0?'bdg-blue':'bdg-gray'}" style="margin-left:6px">${w.iso}${i===0?' · actual':''}</span></td>
+      <td style="color:#10b981">${w.inAR>0?M(w.inAR):'—'}</td>
+      <td style="color:#4f87ff">${w.inCred>0?M(w.inCred):'—'}</td>
+      <td style="color:#ef4444">${w.outAP>0?M(w.outAP):'—'}</td>
+      <td style="color:#f59e0b">${M(w.outG)}</td>
+      <td class="${w.neto>=0?'pos':'neg'}">${M(w.neto,true)}</td>
+      <td class="${w.sp>=0?'teal-v':'teal-n'}">${M(w.sp)}</td>
+    </tr>`).join('');
+}
+
+// ── Render AP tab ──
+function renderAP(rows){
+  const container=document.getElementById('ap-weeks-container');
+
+  // Use static data when no live data
+  if(rows.length===0){
+    // Static AP from live sheet read
+    rows=[
+      {fecha:'06/05/2026',factura:'PROFORMA',proveedor:'ALIMENTOS PROMAIZ',    desc:'Churrito Nopal Habanero',         total:360000,    status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'11/05/2026',factura:'PROFORMA',proveedor:'Botanas FrimeX',        desc:'Papa Frita Limón 2.5kg',          total:590490,    status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'GRACOS',               desc:'Doypack Botamix + Cholula',       total:360000,    status:'Pendiente',vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'GRACOS',               desc:'Doypack Cholula',                 total:360000,    status:'Pendiente',vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'06/05/2026',factura:'PROFORMA',proveedor:'ALIMENTOS PROMAIZ',    desc:'Churrito Nopal Habanero',         total:360000,    status:'',         vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'13/05/2026',factura:'PROFORMA',proveedor:'GM GRUPO MEDESA',      desc:'',                                total:210000,    status:'',         vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'08/05/2026',factura:'CPI330',  proveedor:'SUSANA PANALES ESPINO',desc:'Flete LZC-Toluca Mango',          total:53760,     status:'Pendiente',vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'11/05/2026',factura:'D6448',   proveedor:'CHILIGRIN',            desc:'Extra + Chilidulce',              total:248386.59, status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'08/05/2026',factura:'ABMEDF96532',proveedor:'LAB. ABC QUIMICA', desc:'Análisis Goma Osos Franks',        total:5452,      status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'28/04/2026',factura:'MX5800860',proveedor:'ULINE',               desc:'Bolsas Polietileno 8x12',         total:7245.13,   status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'12/05/2026',factura:'B53252',  proveedor:'Corrugados Fuertes',   desc:'Charolas cartón corrugado',       total:355314.09, status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'07/05/2026',factura:'TMD30198',proveedor:'99 MINUTOS.COM',       desc:'Servicios Transportación Abr',    total:95497,     status:'',         vence:'25/05/2026',iso:'2026-W22'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'Corrugados Fuertes',   desc:'Charolas Mango Chamoy',           total:150000,    status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'13/05/2026',factura:'PROFORMA',proveedor:'GM GRUPO MEDESA',      desc:'',                                total:170000,    status:'',         vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'06/05/2026',factura:'TTB554',  proveedor:'GM GRUPO MEDESA',      desc:'Cacahuate Salado/Enchilado',      total:14263.88,  status:'',         vence:'01/06/2026',iso:'2026-W23'},
+      {fecha:'12/05/2026',factura:'MX5828580',proveedor:'ULINE',               desc:'Bolsas Polietileno 24x30',        total:13622.83,  status:'Pendiente',vence:'12/06/2026',iso:'2026-W24'},
+      {fecha:'08/05/2026',factura:'OC00014', proveedor:'GRUPO KUPINZ',         desc:'Materiales limpieza/protección',  total:60379.56,  status:'',         vence:'08/06/2026',iso:'2026-W24'},
+      {fecha:'06/04/2026',factura:'OC00013', proveedor:'GRUPO KUPINZ',         desc:'Limpieza e insumos varios',       total:30662.45,  status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'02/03/2026',factura:'OC00012', proveedor:'GRUPO KUPINZ',         desc:'Material higiene industrial',     total:57281.98,  status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'CHILIGRIN',            desc:'Extra + Chilidulce',              total:248386.59, status:'Pendiente',vence:'12/06/2026',iso:'2026-W24'},
+    ];
+  }
+
+  if(rows.length===0){container.innerHTML='<div class="no-data">Sin facturas pendientes</div>';return;}
+
+  // Group by ISO week
+  const weekMap={};
+  const weekOrder=[];
+  rows.forEach(r=>{
+    const w=r.iso||'Sin semana';
+    if(!weekMap[w]){weekMap[w]=[];weekOrder.push(w);}
+    weekMap[w].push(r);
+  });
+  // Sort weeks
+  weekOrder.sort((a,b)=>{
+    if(a==='Sin semana')return 1; if(b==='Sin semana')return -1;
+    return a.localeCompare(b);
+  });
+
+  // Compute date range dynamically from ISO week string — works for any rolling week
+  function isoWeekToRange(isoStr){
+    // isoStr = "2026-W20" or "W20" etc.
+    const m=isoStr.match(/(\d{4})-W(\d{2})/);
+    if(!m)return'';
+    const year=+m[1], week=+m[2];
+    // ISO week 1 = week containing the first Thursday of the year
+    // Find Monday of that week
+    const jan4=new Date(year,0,4); // Jan 4 is always in W1
+    const w1Mon=new Date(jan4);
+    w1Mon.setDate(jan4.getDate()-((jan4.getDay()+6)%7)); // back to Monday
+    const mon=new Date(w1Mon);
+    mon.setDate(w1Mon.getDate()+(week-1)*7);
+    const sun=new Date(mon);
+    sun.setDate(mon.getDate()+6);
+    const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+    return`${fmt(mon)} – ${fmt(sun)}`;
+  }
+
+  container.innerHTML=weekOrder.map(iso=>{
+    const wRows=weekMap[iso];
+    const weekTotal=wRows.reduce((s,r)=>s+r.total,0);
+    const shortIso=iso.replace('2026-','');
+    const dateRange=isoWeekToRange(iso);
+
+    const rowsHtml=wRows.map(r=>{
+      const isProforma=(r.factura||'').toUpperCase()==='PROFORMA';
+      const statusBdg=isProforma
+        ?'<span class="bdg-proforma">PROFORMA</span>'
+        :r.status==='Pendiente'?'<span class="bdg-pendiente">Pendiente</span>'
+        :r.status?`<span class="bdg-na">${r.status}</span>`:'<span class="bdg-na">N/A</span>';
+      const rowStyle=isProforma?'background:rgba(245,158,11,.06)':'';
+      const provShort=r.proveedor.length>28?r.proveedor.slice(0,26)+'…':r.proveedor;
+      return `<tr style="${rowStyle}">
+        <td class="al" style="font-family:var(--mono);font-size:11px;color:var(--tx3)">${fDate(r.fecha)}</td>
+        <td class="al" style="font-family:var(--mono);font-size:11px;${isProforma?'color:var(--amber)':''}">${r.factura}</td>
+        <td class="al">${provShort}</td>
+        <td class="al" style="font-size:11px;color:var(--tx3);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc||'—'}</td>
+        <td>${M(r.total)}</td>
+        <td class="al">${fDate(r.vence)}</td>
+        <td>${statusBdg}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="ap-week">
+      <div class="ap-week-hd">
+        <span class="ap-week-iso">${shortIso}</span>
+        <span class="ap-week-dates">${dateRange}</span>
+        <span class="ap-week-total">${M(weekTotal)}</span>
+      </div>
+      <div class="ap-week-table">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th class="al">Fecha</th><th class="al">Factura</th><th class="al">Proveedor</th>
+              <th class="al">Descripción</th><th>Total</th><th class="al">Vencimiento</th><th class="al">Status</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Render CFDI ──
+function renderCFDI(rows){
+  const cnt=document.getElementById('cfdi-cnt');
+  const tbody=document.getElementById('cfdi-tbody');
+  cnt.textContent=rows.length+' sin CFDI';
+  cnt.className='bdg '+(rows.length>0?'bdg-red':'bdg-green');
+  if(rows.length===0){
+    tbody.innerHTML='<tr><td colspan="6" class="no-data" style="color:var(--green)">✓ Todas las facturas pagadas tienen CFDI registrado</td></tr>';
+    return;
+  }
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td class="al">${fDate(r.fechaPago)}</td>
+    <td class="al" style="font-family:var(--mono);font-size:11px">${r.factura}</td>
+    <td class="al">${r.proveedor}</td>
+    <td>${r.total>0?M(r.total):'—'}</td>
+    <td style="color:var(--green)">${r.importePagado>0?M(r.importePagado):'—'}</td>
+    <td class="al" style="font-family:var(--mono);font-size:10px;color:var(--tx3);max-width:200px;overflow:hidden;text-overflow:ellipsis">${r.refSPEI}</td>
+  </tr>`).join('');
+}
+
+// ── Render Gastos ──
+function renderGastos(rows){
+  const tbody=document.getElementById('gastos-tbody');
+  const ttl=document.getElementById('gastos-ttl');
+  if(rows.length===0){
+    tbody.innerHTML='<tr><td colspan="5" class="no-data">Configura API Key para cargar gastos del GASTOS tab en tiempo real</td></tr>';
+    ttl.textContent='';
+    return;
+  }
+  const total=rows.reduce((a,r)=>a+r.monto,0);
+  ttl.textContent='Total: '+M(total);
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td class="al">${r.desc}</td>
+    <td class="al"><span class="cat ${catCls(r.cat)}">${r.cat||'Otro'}</span></td>
+    <td class="al" style="color:var(--tx3);font-size:11px">${r.freq||'—'}</td>
+    <td class="al" style="font-family:var(--mono);font-size:11px;color:var(--tx3)">${r.iso||'—'}</td>
+    <td>${M(r.monto)}</td>
+  </tr>`).join('');
+}
+
+// Wait for full page load (ensures Chart.js CDN is ready) then auto-load
+if(document.readyState==='complete'){
+  loadAll();
+}else{
+  window.addEventListener('load', loadAll);
+}
+</script>
+</body>
+</html>
