@@ -26,9 +26,9 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px;min-height:100vh}
-
+ 
 .app{max-width:1280px;margin:0 auto;padding:24px 24px 60px}
-
+ 
 /* Header */
 .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--bd)}
 .hdr-l{display:flex;align-items:center;gap:12px}
@@ -44,7 +44,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .dot{width:6px;height:6px;border-radius:50%;background:var(--tx3);flex-shrink:0}
 .dot.live{background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
+ 
 /* API Panel */
 .api-panel{background:var(--blue-bg);border:1px solid rgba(79,135,255,.3);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;display:none;align-items:center;gap:12px;flex-wrap:wrap}
 .api-panel p{font-size:12px;color:#93c5fd;flex:1;min-width:200px;line-height:1.6}
@@ -53,10 +53,10 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .api-in{background:var(--s1);border:1px solid rgba(79,135,255,.4);border-radius:var(--rs);padding:6px 12px;color:var(--tx);font-family:var(--mono);font-size:12px;outline:none;width:300px}
 .api-in:focus{border-color:var(--blue)}
 .api-btn{border:none;border-radius:var(--rs);padding:6px 14px;color:#fff;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer}
-
+ 
 /* Error */
 .err{background:var(--red-bg);border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:14px;display:none}
-
+ 
 /* Tabs */
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:20px}
 .tab{padding:9px 18px;font-size:13px;font-weight:500;color:var(--tx3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;border-radius:var(--rs) var(--rs) 0 0}
@@ -64,7 +64,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
-
+ 
 /* KPIs */
 .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
 .kpi{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
@@ -78,10 +78,10 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .kpi-val{font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1.1}
 .kpi-val.blue{color:var(--blue)}.kpi-val.green{color:var(--green)}.kpi-val.red{color:var(--red)}.kpi-val.amber{color:var(--amber)}.kpi-val.teal{color:var(--teal)}
 .kpi-sub{font-size:10px;color:var(--tx3);margin-top:4px}
-
+ 
 /* Section heading */
 .sh{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:10px}
-
+ 
 /* Cards */
 .card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px}
 .card-hd{padding:16px 18px 0}
@@ -92,7 +92,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
 .leg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
 .chart-wrap{position:relative;width:100%}
-
+ 
 /* Tables */
 .tbl-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
 .tbl-bar{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
@@ -109,7 +109,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
 .neg{color:var(--red);font-weight:500}
 .teal-v{color:var(--teal);font-weight:500}
 .teal-n{color:var(--red);font-weight:500}
-
+ 
 /* Badges */
 .bdg{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500;font-family:var(--mono);white-space:nowrap}
 .bdg-gray{background:var(--s3);color:var(--tx3);border:1px solid var(--bd)}
@@ -117,7 +117,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
 .bdg-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.3)}
 .bdg-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.3)}
 .bdg-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
-
+ 
 /* Category pills */
 .cat{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500;font-family:var(--mono)}
 .cat-nomina   {background:rgba(167,139,250,.18);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
@@ -128,9 +128,9 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
 .cat-bono     {background:var(--teal-bg);color:var(--teal);border:1px solid rgba(6,182,212,.3)}
 .cat-extra    {background:var(--mint-bg);color:var(--mint);border:1px solid rgba(52,211,153,.3)}
 .cat-otro     {background:var(--s3);color:var(--tx3);border:1px solid var(--bd)}
-
+ 
 .no-data{padding:28px;text-align:center;color:var(--tx3);font-size:12px}
-
+ 
 /* AP week groups */
 .ap-week{margin-bottom:16px}
 .ap-week-hd{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r) var(--r) 0 0;border-bottom:none}
@@ -141,11 +141,105 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
 .bdg-proforma{background:rgba(245,158,11,.2);color:var(--amber);border:1px solid rgba(245,158,11,.4);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);font-weight:500}
 .bdg-pendiente{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,135,255,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono)}
 .bdg-na{background:var(--s3);color:var(--tx3);border:1px solid var(--bd);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono)}
+/* ── Mobile responsive (≤768px) ── */
+@media(max-width:768px){
+  .app{padding:16px 14px 80px}
+ 
+  /* Header */
+  .hdr{margin-bottom:16px;padding-bottom:14px;flex-wrap:wrap;gap:10px}
+  .h-title{font-size:15px}
+  .h-sub{font-size:10px}
+  .live-badge span:last-child{display:none} /* hide "live · Google Sheets" text, keep dot */
+  .btn-ref span{display:none} /* hide "Actualizar" text, keep icon */
+  .btn-ref{padding:6px 10px}
+ 
+  /* Tabs — scrollable horizontal strip */
+  .tabs{gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;margin-bottom:14px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:8px 14px;font-size:12px;white-space:nowrap;flex-shrink:0}
+ 
+  /* KPIs — 2 column grid */
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .kpi-grid .kpi:last-child{grid-column:1/-1} /* Posición Neta spans full width */
+  .kpi-val{font-size:18px}
+  .kpi-lbl{font-size:9px}
+ 
+  /* Charts — shorter on mobile */
+  .card-body{padding:10px 12px 14px}
+  .card-hd{padding:12px 12px 0}
+  #saldoChart{height:180px!important}
+  #flowChart{height:200px!important}
+  .chart-wrap[style*="240px"]{height:180px!important}
+  .chart-wrap[style*="280px"]{height:200px!important}
+ 
+  /* Section heading */
+  .sh{font-size:9px;margin-bottom:8px}
+ 
+  /* Tables — horizontal scroll */
+  .tbl-wrap,
+  .ap-week-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:500px}
+  td,thead th{padding:7px 10px;font-size:11px}
+ 
+  /* AP/AR week headers */
+  .ap-week-hd{padding:8px 12px}
+  .ap-week-iso{font-size:12px}
+  .ap-week-dates{font-size:10px}
+  .ap-week-total{font-size:12px}
+ 
+  /* Gastos */
+  .kpi.c-blue,.kpi.c-green,.kpi.c-red,.kpi.c-amber,.kpi.c-teal{padding:12px}
+ 
+  /* Alerts */
+  .alerts-card,.summary-card{padding:0}
+  .alert-item{padding:10px 14px}
+}
+ 
+/* ── PWA: safe area for iPhone notch/home bar ── */
+@supports(padding:max(0px)){
+  .app{
+    padding-left:max(14px,env(safe-area-inset-left));
+    padding-right:max(14px,env(safe-area-inset-right));
+    padding-bottom:max(80px,env(safe-area-inset-bottom));
+  }
+}
 </style>
+ 
+<!-- PWA manifest inline -->
+<script>
+const _manifest={
+  name:'Panorama F&S Dashboard',
+  short_name:'Panorama',
+  description:'Dashboard financiero — Flujo de caja 12 semanas',
+  start_url:'./',
+  display:'standalone',
+  background_color:'#0b1120',
+  theme_color:'#4f87ff',
+  orientation:'portrait-primary',
+  icons:[
+    {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%234f87ff'/%3E%3Ctext x='96' y='136' font-family='Arial' font-weight='700' font-size='110' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E",
+     sizes:'192x192',type:'image/svg+xml'},
+    {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%234f87ff'/%3E%3Ctext x='256' y='360' font-family='Arial' font-weight='700' font-size='300' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E",
+     sizes:'512x512',type:'image/svg+xml'},
+  ]
+};
+const _blob=new Blob([JSON.stringify(_manifest)],{type:'application/manifest+json'});
+const _url=URL.createObjectURL(_blob);
+const _link=document.createElement('link');
+_link.rel='manifest';_link.href=_url;
+document.head.appendChild(_link);
+</script>
+ 
+<!-- iPhone PWA meta tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Panorama">
+<meta name="theme-color" content="#4f87ff">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%234f87ff'/%3E%3Ctext x='90' y='128' font-family='Arial' font-weight='700' font-size='104' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 <div class="app">
-
+ 
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-l">
@@ -161,7 +255,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
     <button class="btn-ref" onclick="loadAll()">↺ Actualizar</button>
   </div>
 </div>
-
+ 
 <!-- API Panel -->
 <div class="api-panel" id="api-panel">
   <p><strong>Google Sheets API Key</strong> — ambos sheets deben ser públicos de lectura.<br>
@@ -172,22 +266,23 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
     <button class="api-btn" style="background:var(--tx3)" onclick="clearKey()">Borrar</button>
   </div>
 </div>
-
+ 
 <div class="err" id="err"></div>
-
+ 
 <!-- TABS -->
 <div class="tabs">
   <button class="tab active" onclick="switchTab('flujo',this)">Flujo de Caja</button>
+  <button class="tab" onclick="switchTab('ar',this)">Cuentas por Cobrar</button>
   <button class="tab" onclick="switchTab('ap',this)">Cuentas por Pagar</button>
   <button class="tab" onclick="switchTab('cfdi',this)">Pendientes de CFDI</button>
   <button class="tab" onclick="switchTab('gastos',this)">Gastos</button>
 </div>
-
+ 
 <!-- ═══ FLUJO ═══ -->
 <div class="tab-panel active" id="tab-flujo">
-
+ 
   <div class="kpi-grid" id="kpi-grid"></div>
-
+ 
   <p class="sh">Saldo Proyectado — 12 semanas</p>
   <div class="card">
     <div class="card-hd">
@@ -202,7 +297,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
       <div class="chart-wrap" style="height:240px"><canvas id="saldoChart" role="img" aria-label="Área saldo proyectado por semana"></canvas></div>
     </div>
   </div>
-
+ 
   <p class="sh">Entradas vs Salidas — 12 semanas</p>
   <div class="card">
     <div class="card-hd">
@@ -220,7 +315,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
       <div class="chart-wrap" style="height:280px"><canvas id="flowChart" role="img" aria-label="Barras apiladas entradas y salidas por semana"></canvas></div>
     </div>
   </div>
-
+ 
   <p class="sh">Detalle semanal</p>
   <div class="tbl-wrap">
     <div class="tbl-bar">
@@ -237,13 +332,19 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
     </div>
   </div>
 </div>
-
+ 
+<!-- ═══ AR ═══ -->
+<div class="tab-panel" id="tab-ar">
+  <p class="sh">Cuentas por cobrar pendientes — agrupadas por semana estimada de cobro</p>
+  <div id="ar-weeks-container"><div class="no-data" style="padding:28px;text-align:center;color:var(--tx3)">Cargando...</div></div>
+</div>
+ 
 <!-- ═══ AP ═══ -->
 <div class="tab-panel" id="tab-ap">
   <p class="sh">Cuentas por pagar pendientes — agrupadas por semana</p>
   <div id="ap-weeks-container"><div class="no-data" style="padding:28px;text-align:center;color:var(--tx3)">Cargando...</div></div>
 </div>
-
+ 
 <!-- ═══ CFDI ═══ -->
 <div class="tab-panel" id="tab-cfdi">
   <p class="sh">Facturas pagadas sin CFDI — AP Pagado · Folio Fiscal = N/A</p>
@@ -267,7 +368,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
     </div>
   </div>
 </div>
-
+ 
 <!-- ═══ GASTOS ═══ -->
 <div class="tab-panel" id="tab-gastos">
   <p class="sh">Nómina recurrente</p>
@@ -300,7 +401,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
       </table>
     </div>
   </div>
-
+ 
   <p class="sh">Gastos adicionales</p>
   <div class="tbl-wrap">
     <div class="tbl-bar">
@@ -321,13 +422,13 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
     </div>
   </div>
 </div>
-
+ 
 </div>
-
+ 
 <script>
 const DASH_ID='1u6z9tURJUOiJcVAewj8AIZ88B-F8k0LPZ_nEe72avOo';
 const AP_ID  ='1nrNU5PDY_bnbMBC77OHYKCW0_fQwbs4u17Q7Sa7khbo';
-
+ 
 // Static fallback — live values from sheet May 14, 2026
 const STATIC={
   saldo:303570.65,
@@ -347,7 +448,7 @@ const STATIC={
   ],
   kpis:{ar:17819353.94,ap:3750742.10,gastos:9125000,cred:0,neta:5247182.49,flags:1}
 };
-
+ 
 // Static CFDI — AP Pagado rows where Folio Fiscal = N/A as of May 14
 // Note: B71476 now has UUID 4C18FCA7... and V07001561 is N/A (PO paid, awaiting CFDI)
 const STATIC_CFDI=[
@@ -355,9 +456,9 @@ const STATIC_CFDI=[
   {fechaPago:'08/05/2026',factura:'—',           proveedor:'GRUPO NUTRISA',                        total:0,         importePagado:54975.88,  refSPEI:'Pago intereses al 30 de abril'},
   {fechaPago:'08/05/2026',factura:'V07001561',   proveedor:'CUANDA, S.A. DE C.V.',                 total:1461370.79,importePagado:1461370.79,refSPEI:'Pago F V07001561'},
 ];
-
+ 
 let flowCh=null,saldoCh=null;
-
+ 
 // Helpers
 function M(v,sign=false){
   const a=Math.abs(v);
@@ -402,7 +503,7 @@ function isNomina(r){
   const d=(r.desc||'').toLowerCase(), c=(r.cat||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   return c.includes('nomina')&&(d.includes('semanal')||d.includes('quincenal')||d.includes('mensual'));
 }
-
+ 
 // ── Date helpers ──
 function parseDateStr(s){
   if(!s)return null;
@@ -420,7 +521,7 @@ function isoWeekStr(d){
   const wn=1+Math.round(((dt-w1)/86400000-3+((w1.getDay()+6)%7))/7);
   return dt.getFullYear()+'-W'+String(wn).padStart(2,'0');
 }
-
+ 
 // ── UI ──
 function toggleApi(){const p=document.getElementById('api-panel');p.style.display=p.style.display==='flex'?'none':'flex';}
 function saveKey(){const k=document.getElementById('apiKey').value.trim();if(!k)return;localStorage.setItem('pf_k',k);document.getElementById('api-panel').style.display='none';loadAll();}
@@ -433,7 +534,7 @@ function setStatus(live){
   document.getElementById('stxt').textContent=live?'live · Google Sheets':'estático';
   document.getElementById('last-ts').textContent='Flujo 12 semanas · '+new Date().toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
 }
-
+ 
 // Fetch
 async function batchGet(id,ranges,key){
   const q=ranges.map(r=>'ranges='+encodeURIComponent(r)).join('&');
@@ -441,144 +542,107 @@ async function batchGet(id,ranges,key){
   if(!res.ok){const j=await res.json().catch(()=>({}));throw new Error('HTTP '+res.status+(j.error?.message?' – '+j.error.message:''));}
   return (await res.json()).valueRanges;
 }
-
+ 
 // Main load
 async function loadAll(){
   const key=localStorage.getItem('pf_k');
-  if(!key){setStatus(false);renderFlujo(STATIC);renderAP([]);renderCFDI(STATIC_CFDI);renderGastos([]);return;}
-
-  let dashData=STATIC, cfdiRows=STATIC_CFDI, gastosRows=[];
-
-  // Pre-Dashboard
+  if(!key){setStatus(false);renderFlujo(STATIC);renderAR([]);renderAP([]);renderCFDI(STATIC_CFDI);renderGastos([]);return;}
+ 
+  let dashData=STATIC, cfdiRows=STATIC_CFDI, gastosRows=[], arRows=[], apPendingRows=[];
+ 
+  // Single batchGet for all Pre-Dashboard data to avoid quota limits
   try{
     const vr=await batchGet(DASH_ID,[
-      'WEEKLY_SUMMARY!B2',      // [0] saldo
-      'WEEKLY_SUMMARY!A6:K17',  // [1] weekly rows — cols A-K
+      'WEEKLY_SUMMARY!B2',      // [0] saldo bancario
+      'WEEKLY_SUMMARY!A6:K17',  // [1] 12 weekly rows
       'WEEKLY_SUMMARY!E22:E27', // [2] KPIs
-      'GASTOS!A1:G300',         // [3] full gastos tab
-      'GASTOS!D2:D4',           // [4] payroll config: Semanal, Quincenal, Mensual
+      'GASTOS!A1:G300',         // [3] gastos tab full
+      'GASTOS!D2:D4',           // [4] payroll config amounts
+      'DATA_AR!A3:J501',        // [5] AR source data
+      'DATA_AR!L3:L501',        // [6] AR Semana ISO
+      'DATA_AP!A3:S501',        // [7] AP source data
+      'DATA_AP!X3:X501',        // [8] AP Semana ISO
     ],key);
-
+ 
+    // ── Weekly summary + KPIs ──
     const saldo=pMXN(vr[0].values?.[0]?.[0])||150000;
-
     const weeks=(vr[1].values||[]).map((r,i)=>({
-      iso:  r[1]||'W'+(20+i),
-      lunes:r[2]?String(r[2]).slice(0,5):'',
-      inAR: pMXN(r[4]),
-      inCred:pMXN(r[5]),
-      outAP:pMXN(r[6]),
-      outG: pMXN(r[7]),
-      neto: pMXN(r[8]),
-      sp:   pMXN(r[9]),
+      iso:   r[1]||'W'+(20+i),
+      lunes: r[2]?String(r[2]).slice(0,5):'',
+      inAR:  pMXN(r[4]), inCred:pMXN(r[5]),
+      outAP: pMXN(r[6]), outG:  pMXN(r[7]),
+      neto:  pMXN(r[8]), sp:    pMXN(r[9]),
     }));
-
     const kv=(vr[2].values||[]).map(r=>pMXN(r[0]));
     const kpis={ar:kv[0]||0,ap:kv[1]||0,gastos:kv[2]||0,cred:kv[3]||0,neta:kv[4]||0,flags:kv[5]||0};
-
     dashData={saldo,weeks,kpis};
-
-    // Update live payroll amounts from GASTOS!D2:D4 config cells
+ 
+    // ── Payroll config ──
     const payCfg=vr[4].values||[];
-    const configSem  = pMXN(payCfg[0]?.[0]);
-    const configQuin = pMXN(payCfg[1]?.[0]);
-    const configMen  = pMXN(payCfg[2]?.[0]);
-    if(configSem)  document.getElementById('pay-sem').textContent  = M(configSem);
-    if(configQuin) document.getElementById('pay-quin').textContent = M(configQuin);
-    if(configMen)  document.getElementById('pay-men').textContent  = M(configMen);
-
-    // Parse GASTOS tab data rows (col A = strict integer row#)
-    const gAll=vr[3].values||[];
-    gastosRows=gAll
-      .filter(r=>{
-        const raw=String(r[0]||'').trim();
-        const num=Number(raw);
-        // Must be a strict positive integer (row numbers like "1","22" — not text headers)
-        const isRowNum=raw!==''&&Number.isInteger(num)&&num>0;
-        const imp=pMXN(r[3]);
-        return isRowNum&&imp>0;
-      })
+    const cS=pMXN(payCfg[0]?.[0]), cQ=pMXN(payCfg[1]?.[0]), cM=pMXN(payCfg[2]?.[0]);
+    const elS=document.getElementById('pay-sem'), elQ=document.getElementById('pay-quin'), elM=document.getElementById('pay-men');
+    if(cS&&elS) elS.textContent=M(cS);
+    if(cQ&&elQ) elQ.textContent=M(cQ);
+    if(cM&&elM) elM.textContent=M(cM);
+ 
+    // ── Gastos tab ──
+    gastosRows=(vr[3].values||[])
+      .filter(r=>{const raw=String(r[0]||'').trim(),num=Number(raw);return raw!==''&&Number.isInteger(num)&&num>0&&pMXN(r[3])>0;})
       .map(r=>({desc:r[1]||'',cat:r[2]||'',freq:r[5]||'',monto:pMXN(r[3]),dia:r[4]||'',iso:r[6]||''}))
       .filter(r=>!isNomina(r));
-
+ 
+    // ── AR rows ──
+    const arSrc=vr[5].values||[], arIso=vr[6].values||[];
+    arRows=arSrc.map((r,i)=>{
+      const total=pMXN(r[8]); if(total<=0) return null;
+      let iso=String(arIso[i]?.[0]||'').trim();
+      if(!iso){const cd=parseDateStr(String(r[9]||'').trim());if(cd)iso=isoWeekStr(cd);}
+      const oc=String(r[2]||'').trim();
+      return{fecha:r[0]||'',cliente:r[1]||'',oc,desc:r[4]||'',total,fechaCobro:r[9]||'',iso,isProforma:oc.toUpperCase()==='PROFORMA'};
+    }).filter(Boolean);
+ 
+    // ── AP rows ──
+    const apSrc=vr[7].values||[], apIso=vr[8].values||[];
+    apPendingRows=apSrc.map((r,i)=>{
+      const status=String(r[17]||'').trim().toLowerCase();
+      const total=pMXN(r[12]);
+      if(total<=0||status==='pagado') return null;
+      let iso=String(apIso[i]?.[0]||'').trim();
+      if(!iso){const vd=parseDateStr(String(r[18]||'').trim());if(vd)iso=isoWeekStr(vd);}
+      return{fecha:r[0]||'',factura:r[1]||'',proveedor:r[3]||'',desc:r[5]||'',total,status:r[17]||'',vence:r[18]||'',iso};
+    }).filter(Boolean);
+ 
     setStatus(true);
   }catch(e){
-    showErr('Error Pre-Dashboard: '+e.message);
+    showErr('Error cargando datos: '+e.message);
     setStatus(false);
   }
-
-  // AP Pending — fetch source cols and ISO col separately to avoid sparse-row index issues
-  let apPendingRows=[];
-  try{
-    // Fetch source data (cols A-S = indices 0-18) and ISO week col X separately
-    const apDr=await batchGet(DASH_ID,[
-      'DATA_AP!A3:S501',   // [0] source data: Fecha(A), Factura(B), Folio(C), Proveedor(D), RFC(E), Desc(F)...Total(M=idx12)...Status(R=idx17), FechaVenc(S=idx18)
-      'DATA_AP!X3:X501',   // [1] Semana ISO (col X, derived by refreshDataAP)
-    ],key);
-    const apSrc=apDr[0].values||[];
-    const apIso=apDr[1].values||[];
-
-    apPendingRows=apSrc
-      .map((r,i)=>{
-        const status=String(r[17]||'').trim().toLowerCase();
-        const total=pMXN(r[12]);
-        if(total<=0||status==='pagado') return null;
-        // Use col X ISO if available, otherwise derive from Fecha Vencimiento
-        let iso=String(apIso[i]?.[0]||'').trim();
-        if(!iso){
-          const vd=parseDateStr(String(r[18]||'').trim());
-          if(vd) iso=isoWeekStr(vd);
-        }
-        return{
-          fecha:    r[0]||'',
-          factura:  r[1]||'',
-          proveedor:r[3]||'',
-          desc:     r[5]||'',
-          total,
-          status:   r[17]||'',
-          vence:    r[18]||'',
-          iso,
-        };
-      })
-      .filter(Boolean);
-  }catch(e){
-    showErr('Error AP tab: '+e.message);
-  }
-
-  // AP Pagado — CFDI check
+ 
+  // AP Pagado — separate sheet, separate call
   try{
     const apVr=await batchGet(AP_ID,['AP — Pagado!A2:X300'],key);
     const rows=apVr[0].values||[];
-    // Col B (idx 1) = No. Factura/PO  Col C (idx 2) = Folio Fiscal
-    // Col D (idx 3) = Proveedor  Col M (idx 12) = Total  Col V (idx 21) = Importe Pagado
-    // Col U (idx 20) = Fecha de Pago  Col W (idx 22) = Referencia SPEI
-    const parsed=rows.filter(r=>r.length>1); // skip fully empty
-    cfdiRows=parsed
-      .filter(r=>{
-        const folio=(r[2]||'').trim();
-        return folio===''||folio==='N/A'||folio.toLowerCase()==='n/a';
-      })
-      .map(r=>({
-        fechaPago: r[20]||r[0]||'',
-        factura:   r[1]||'—',
-        proveedor: r[3]||'—',
-        total:     pMXN(r[12]),
-        importePagado: pMXN(r[21]),
-        refSPEI:   r[22]||'—',
-      }));
+    cfdiRows=rows.filter(r=>r.length>1).filter(r=>{
+      const folio=(r[2]||'').trim();
+      return folio===''||folio.toLowerCase()==='n/a';
+    }).map(r=>({
+      fechaPago:r[20]||r[0]||'',factura:r[1]||'—',proveedor:r[3]||'—',
+      total:pMXN(r[12]),importePagado:pMXN(r[21]),refSPEI:r[22]||'—',
+    }));
   }catch(e){
-    showErr('Error AP sheet (CFDI): '+e.message+'. Mostrando datos estáticos en tab CFDI.');
-    // keep static_cfdi
+    showErr('Error CFDI: '+e.message+'. Datos estáticos.');
   }
-
+ 
   renderFlujo(dashData);
+  renderAR(arRows);
   renderAP(apPendingRows);
   renderCFDI(cfdiRows);
   renderGastos(gastosRows);
 }
-
+ 
 // ── Render Flujo ──
 function renderFlujo(d){renderKPIs(d);renderCharts(d);renderTable(d);}
-
+ 
 function renderKPIs(d){
   const cfg=[
     {lbl:'Saldo Bancario',   val:d.saldo,      cls:'c-blue', vcls:'blue', sub:'actualizar cada viernes'},
@@ -594,16 +658,16 @@ function renderKPIs(d){
       <div class="kpi-sub">${k.sub}</div>
     </div>`).join('');
 }
-
+ 
 function renderCharts(d){
   if(flowCh){flowCh.destroy();flowCh=null;}
   if(saldoCh){saldoCh.destroy();saldoCh=null;}
-
+ 
   const labels=d.weeks.map(w=>w.iso);
   const gc='rgba(255,255,255,.06)', tc='#64748b';
   const tf=v=>{const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6)return s+'$'+(a/1e6).toFixed(1)+'M';if(a>=1e3)return s+'$'+Math.round(a/1e3)+'k';return s+'$'+Math.round(a);};
   const tt={backgroundColor:'#1a2236',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#94a3b8',padding:10};
-
+ 
   flowCh=new Chart(document.getElementById('flowChart'),{
     type:'bar',
     data:{labels,datasets:[
@@ -624,12 +688,12 @@ function renderCharts(d){
       }
     }
   });
-
+ 
   // Saldo chart with red below zero
   const spData=d.weeks.map(w=>w.sp);
   const minSP=Math.min(...spData,0);
   const maxSP=Math.max(...spData,0);
-
+ 
   saldoCh=new Chart(document.getElementById('saldoChart'),{
     type:'line',
     data:{labels,datasets:[
@@ -683,7 +747,7 @@ function renderCharts(d){
       }
     }
   });
-
+ 
   // Draw red zone below zero
   Chart.register({
     id:'redZone',
@@ -700,7 +764,7 @@ function renderCharts(d){
     }
   });
 }
-
+ 
 function renderTable(d){
   document.getElementById('flow-tbody').innerHTML=d.weeks.map((w,i)=>`
     <tr class="${i===0?'cur':''}">
@@ -713,11 +777,108 @@ function renderTable(d){
       <td class="${w.sp>=0?'teal-v':'teal-n'}">${M(w.sp)}</td>
     </tr>`).join('');
 }
-
+ 
+// ── Global: ISO week string → "DD/MM – DD/MM" date range ──
+function isoWeekToRange(isoStr){
+  const m=isoStr.match(/(\d{4})-W(\d{2})/);
+  if(!m)return'';
+  const year=+m[1], week=+m[2];
+  const jan4=new Date(year,0,4);
+  const w1Mon=new Date(jan4);
+  w1Mon.setDate(jan4.getDate()-((jan4.getDay()+6)%7));
+  const mon=new Date(w1Mon);
+  mon.setDate(w1Mon.getDate()+(week-1)*7);
+  const sun=new Date(mon);
+  sun.setDate(mon.getDate()+6);
+  const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  return`${fmt(mon)} – ${fmt(sun)}`;
+}
+ 
+// ── Render AR tab ──
+function renderAR(rows){
+  const container=document.getElementById('ar-weeks-container');
+ 
+  // Static fallback with current AR data
+  if(rows.length===0){
+    rows=[
+      {fecha:'23/04/2026',cliente:'NUTRISA',oc:'P343800',  desc:'Granel Mango Tamborines / Cacahuate / Mix Mexicano', total:88781.18,  fechaCobro:'15/05/2026',iso:'2026-W20'},
+      {fecha:'25/04/2026',cliente:'NUTRISA',oc:'P339916',  desc:'Granel Aros Dzno / Mango Chamoy / Cholula',          total:275297.40, fechaCobro:'15/05/2026',iso:'2026-W20'},
+      {fecha:'25/04/2026',cliente:'NUTRISA',oc:'P345106',  desc:'Granel Aros / Mango Chamoy / Cholula (OC grande)',   total:6912000,   fechaCobro:'22/05/2026',iso:'2026-W21'},
+      {fecha:'07/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'78 pallets Osos Franks',                             total:3014750,   fechaCobro:'22/05/2026',iso:'2026-W21',isProforma:true},
+      {fecha:'07/05/2026',cliente:'NUTRISA',oc:'P345290',  desc:'Granel Mango / Chamoy / Cholula adicional',          total:2770000,   fechaCobro:'29/05/2026',iso:'2026-W22'},
+      {fecha:'01/05/2026',cliente:'NUTRISA',oc:'P343784',  desc:'Granel Mix Cholula',                                 total:107000,    fechaCobro:'06/06/2026',iso:'2026-W23'},
+      {fecha:'01/05/2026',cliente:'NUTRISA',oc:'P343785',  desc:'Granel Mix Cholula adicional',                       total:131464,    fechaCobro:'06/06/2026',iso:'2026-W23'},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'P345092',  desc:'Granel surtido Nutrisa',                             total:207000,    fechaCobro:'13/06/2026',iso:'2026-W24'},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'Mix Cholula x3 lotes',                               total:2410767,   fechaCobro:'20/06/2026',iso:'2026-W25',isProforma:true},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'Mix Cholula x3 lotes (2do envío)',                   total:2205000,   fechaCobro:'27/06/2026',iso:'2026-W26',isProforma:true},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'Mix Cholula x3 lotes (3er envío)',                   total:2410767,   fechaCobro:'04/07/2026',iso:'2026-W27',isProforma:true},
+    ];
+  }
+ 
+  if(rows.length===0){container.innerHTML='<div class="no-data">Sin cuentas por cobrar</div>';return;}
+ 
+  // Group by ISO week
+  const weekMap={}, weekOrder=[];
+  rows.forEach(r=>{
+    const w=r.iso||'Sin semana';
+    if(!weekMap[w]){weekMap[w]=[];weekOrder.push(w);}
+    weekMap[w].push(r);
+  });
+  weekOrder.sort((a,b)=>{
+    if(a==='Sin semana')return 1; if(b==='Sin semana')return -1;
+    return a.localeCompare(b);
+  });
+ 
+  container.innerHTML=weekOrder.map(iso=>{
+    const wRows=weekMap[iso];
+    const weekTotal=wRows.reduce((s,r)=>s+r.total,0);
+    const shortIso=iso.replace('2026-','');
+    const dateRange=isoWeekToRange(iso);
+ 
+    const rowsHtml=wRows.map(r=>{
+      const isProforma=r.isProforma||(r.oc||'').toUpperCase()==='PROFORMA';
+      const ocDisplay=isProforma
+        ?`<span style="font-family:var(--mono);font-size:11px;color:var(--amber)">PROFORMA</span>`
+        :`<span style="font-family:var(--mono);font-size:11px;color:var(--tx2)">${r.oc||'—'}</span>`;
+      const clienteShort=(r.cliente||'').length>20?(r.cliente||'').slice(0,18)+'…':r.cliente||'—';
+      const rowStyle=isProforma?'background:rgba(245,158,11,.04)':'';
+      return `<tr style="${rowStyle}">
+        <td class="al" style="font-family:var(--mono);font-size:11px;color:var(--tx3)">${fDate(r.fecha)}</td>
+        <td class="al">${ocDisplay}</td>
+        <td class="al" style="font-weight:500">${clienteShort}</td>
+        <td class="al" style="font-size:11px;color:var(--tx3);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc||'—'}</td>
+        <td style="color:var(--green);font-weight:500">${M(r.total)}</td>
+      </tr>`;
+    }).join('');
+ 
+    return `<div class="ap-week">
+      <div class="ap-week-hd">
+        <span class="ap-week-iso">${shortIso}</span>
+        <span class="ap-week-dates">${dateRange}</span>
+        <span class="ap-week-total" style="color:var(--green)">${M(weekTotal)}</span>
+      </div>
+      <div class="ap-week-table">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th class="al">Fecha</th>
+              <th class="al">No. OC / PO</th>
+              <th class="al">Cliente</th>
+              <th class="al">Descripción</th>
+              <th>Total</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+ 
 // ── Render AP tab ──
 function renderAP(rows){
   const container=document.getElementById('ap-weeks-container');
-
+ 
   // Use static data when no live data
   if(rows.length===0){
     // Static AP from live sheet read
@@ -744,9 +905,9 @@ function renderAP(rows){
       {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'CHILIGRIN',            desc:'Extra + Chilidulce',              total:248386.59, status:'Pendiente',vence:'12/06/2026',iso:'2026-W24'},
     ];
   }
-
+ 
   if(rows.length===0){container.innerHTML='<div class="no-data">Sin facturas pendientes</div>';return;}
-
+ 
   // Group by ISO week
   const weekMap={};
   const weekOrder=[];
@@ -760,32 +921,13 @@ function renderAP(rows){
     if(a==='Sin semana')return 1; if(b==='Sin semana')return -1;
     return a.localeCompare(b);
   });
-
-  // Compute date range dynamically from ISO week string — works for any rolling week
-  function isoWeekToRange(isoStr){
-    // isoStr = "2026-W20" or "W20" etc.
-    const m=isoStr.match(/(\d{4})-W(\d{2})/);
-    if(!m)return'';
-    const year=+m[1], week=+m[2];
-    // ISO week 1 = week containing the first Thursday of the year
-    // Find Monday of that week
-    const jan4=new Date(year,0,4); // Jan 4 is always in W1
-    const w1Mon=new Date(jan4);
-    w1Mon.setDate(jan4.getDate()-((jan4.getDay()+6)%7)); // back to Monday
-    const mon=new Date(w1Mon);
-    mon.setDate(w1Mon.getDate()+(week-1)*7);
-    const sun=new Date(mon);
-    sun.setDate(mon.getDate()+6);
-    const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
-    return`${fmt(mon)} – ${fmt(sun)}`;
-  }
-
+ 
   container.innerHTML=weekOrder.map(iso=>{
     const wRows=weekMap[iso];
     const weekTotal=wRows.reduce((s,r)=>s+r.total,0);
     const shortIso=iso.replace('2026-','');
     const dateRange=isoWeekToRange(iso);
-
+ 
     const rowsHtml=wRows.map(r=>{
       const isProforma=(r.factura||'').toUpperCase()==='PROFORMA';
       const statusBdg=isProforma
@@ -804,7 +946,7 @@ function renderAP(rows){
         <td>${statusBdg}</td>
       </tr>`;
     }).join('');
-
+ 
     return `<div class="ap-week">
       <div class="ap-week-hd">
         <span class="ap-week-iso">${shortIso}</span>
@@ -825,7 +967,7 @@ function renderAP(rows){
     </div>`;
   }).join('');
 }
-
+ 
 // ── Render CFDI ──
 function renderCFDI(rows){
   const cnt=document.getElementById('cfdi-cnt');
@@ -845,7 +987,7 @@ function renderCFDI(rows){
     <td class="al" style="font-family:var(--mono);font-size:10px;color:var(--tx3);max-width:200px;overflow:hidden;text-overflow:ellipsis">${r.refSPEI}</td>
   </tr>`).join('');
 }
-
+ 
 // ── Render Gastos ──
 function renderGastos(rows){
   const tbody=document.getElementById('gastos-tbody');
@@ -865,7 +1007,7 @@ function renderGastos(rows){
     <td>${M(r.monto)}</td>
   </tr>`).join('');
 }
-
+ 
 // Wait for full page load (ensures Chart.js CDN is ready) then auto-load
 if(document.readyState==='complete'){
   loadAll();
@@ -875,3 +1017,4 @@ if(document.readyState==='complete'){
 </script>
 </body>
 </html>
+ 
