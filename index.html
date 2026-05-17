@@ -150,6 +150,13 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
 .cat-extra    {background:var(--mint-bg);color:var(--mint);border:1px solid rgba(52,211,153,.3)}
 .cat-otro     {background:var(--s3);color:var(--tx3);border:1px solid var(--bd)}
 
+/* Payroll rows */
+.payroll-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bd);gap:12px}
+.payroll-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1}
+.payroll-name{font-size:13px;font-weight:500;color:var(--tx)}
+.payroll-meta{font-size:11px;color:var(--tx3);width:100%;margin-top:-4px;padding-left:0}
+.payroll-amount{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--tx);white-space:nowrap;text-align:right}
+
 .no-data{padding:28px;text-align:center;color:var(--tx3);font-size:12px}
 
 /* AP week groups */
@@ -394,32 +401,31 @@ document.head.appendChild(_link);
 <div class="tab-panel" id="tab-gastos">
   <p class="sh">Nómina recurrente</p>
   <div class="card" style="margin-bottom:18px">
-    <div class="card-body" style="padding:14px 18px">
-      <table style="width:100%">
-        <thead><tr>
-          <th class="al">Tipo</th><th class="al">Día</th><th class="al">Frecuencia</th><th>Monto por ocurrencia</th>
-        </tr></thead>
-        <tbody>
-          <tr>
-            <td class="al"><span class="cat cat-nomina">Nómina</span> Semanal</td>
-            <td class="al" style="color:var(--tx3)">Viernes</td>
-            <td class="al" style="color:var(--tx3)">Semanal</td>
-            <td id="pay-sem">$65,000</td>
-          </tr>
-          <tr>
-            <td class="al"><span class="cat cat-nomina">Nómina</span> Quincenal</td>
-            <td class="al" style="color:var(--tx3)">Días 1 y 15</td>
-            <td class="al" style="color:var(--tx3)">Quincenal</td>
-            <td id="pay-quin">$80,000</td>
-          </tr>
-          <tr style="border-bottom:none">
-            <td class="al"><span class="cat cat-nomina">Nómina</span> Mensual</td>
-            <td class="al" style="color:var(--tx3)">Día 25</td>
-            <td class="al" style="color:var(--tx3)">Mensual</td>
-            <td id="pay-men">$615,000</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card-body" style="padding:14px 18px;display:flex;flex-direction:column;gap:0">
+      <div class="payroll-row">
+        <div class="payroll-left">
+          <span class="cat cat-nomina">Nómina</span>
+          <span class="payroll-name">Semanal</span>
+          <span class="payroll-meta">Viernes · Semanal</span>
+        </div>
+        <div class="payroll-amount" id="pay-sem">$65,000</div>
+      </div>
+      <div class="payroll-row">
+        <div class="payroll-left">
+          <span class="cat cat-nomina">Nómina</span>
+          <span class="payroll-name">Quincenal</span>
+          <span class="payroll-meta">Días 1 y 15 · Quincenal</span>
+        </div>
+        <div class="payroll-amount" id="pay-quin">$80,000</div>
+      </div>
+      <div class="payroll-row" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+        <div class="payroll-left">
+          <span class="cat cat-nomina">Nómina</span>
+          <span class="payroll-name">Mensual</span>
+          <span class="payroll-meta">Día 25 · Mensual</span>
+        </div>
+        <div class="payroll-amount" id="pay-men">$615,000</div>
+      </div>
     </div>
   </div>
 
