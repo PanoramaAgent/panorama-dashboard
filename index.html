@@ -6,10 +6,21 @@
 <title>Panorama F&S — Dashboard</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f87ff'/><text x='16' y='23' font-family='Arial' font-size='20' font-weight='700' fill='white' text-anchor='middle'>P</text></svg>">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f87ff'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='18' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
-<!-- Preconnect to speed up Chart.js load -->
-<link rel="preconnect" href="https://cdnjs.cloudflare.com">
-<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<script>
+// Load Chart.js — jsdelivr primary, unpkg fallback
+(function(){
+  var s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+  s.onerror=function(){
+    var f=document.createElement('script');
+    f.src='https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js';
+    document.head.appendChild(f);
+  };
+  document.head.appendChild(s);
+})();
+</script>
+ 
 <style>
 :root{
   --bg:#0b1120;--s1:#111827;--s2:#1a2236;--s3:#243050;--s4:#2e3d5c;
@@ -462,6 +473,87 @@ const STATIC_CFDI=[
  
 let flowCh=null,saldoCh=null;
  
+function renderCharts(d){
+  if(flowCh){flowCh.destroy();flowCh=null;}
+  if(saldoCh){saldoCh.destroy();saldoCh=null;}
+ 
+  const labels=d.weeks.map(w=>w.iso.replace('2026-',''));
+  const gc='rgba(255,255,255,.06)',tc='#64748b';
+  const tf=v=>{const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6)return s+'$'+(a/1e6).toFixed(1)+'M';if(a>=1e3)return s+'$'+Math.round(a/1e3)+'k';return s+'$'+Math.round(a);};
+  const tt={backgroundColor:'#1a2236',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#94a3b8',padding:10,callbacks:{label:c=>' '+c.dataset.label+': '+tf(c.raw)}};
+ 
+  flowCh=new Chart(document.getElementById('flowChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'AR Cobro',    data:d.weeks.map(w=>w.inAR),   backgroundColor:'rgba(16,185,129,.82)',stack:'in'},
+      {label:'Crédito',     data:d.weeks.map(w=>w.inCred), backgroundColor:'rgba(79,135,255,.82)',stack:'in'},
+      {label:'AP Pendiente',data:d.weeks.map(w=>-w.outAP), backgroundColor:'rgba(239,68,68,.68)', stack:'out'},
+      {label:'Gastos',      data:d.weeks.map(w=>-w.outG),  backgroundColor:'rgba(245,158,11,.68)',stack:'out'},
+      {label:'NETO',        data:d.weeks.map(w=>w.neto),   type:'line',
+       borderColor:'transparent',backgroundColor:'transparent',
+       pointBackgroundColor:d.weeks.map(w=>w.neto>=0?'#10b981':'#ef4444'),
+       pointRadius:5,pointHoverRadius:7,borderWidth:0,tension:0,
+       tooltip:{callbacks:{label:c=>' NETO: '+tf(c.raw)}}},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tt}},
+      scales:{
+        x:{stacked:true,ticks:{color:tc,font:{size:10}},grid:{color:gc}},
+        y:{stacked:true,ticks:{color:tc,font:{size:10},callback:tf},grid:{color:gc}}
+      }
+    }
+  });
+ 
+  const spData=d.weeks.map(w=>w.sp);
+  const minSP=Math.min(...spData,0);
+ 
+  saldoCh=new Chart(document.getElementById('saldoChart'),{
+    type:'line',
+    data:{labels,datasets:[{
+      label:'Saldo Proyectado',
+      data:spData,
+      segment:{borderColor:ctx=>ctx.p1.parsed.y<0?'#ef4444':'#4f87ff'},
+      backgroundColor:ctx=>{
+        const {ctx:c,chartArea}=ctx.chart;
+        if(!chartArea)return'rgba(79,135,255,.1)';
+        const zY=ctx.chart.scales.y.getPixelForValue(0);
+        const top=chartArea.top,bot=chartArea.bottom;
+        const g=c.createLinearGradient(0,top,0,bot);
+        const zr=Math.max(0,Math.min(1,(zY-top)/(bot-top)));
+        if(zr<=0){g.addColorStop(0,'rgba(239,68,68,.2)');g.addColorStop(1,'rgba(239,68,68,.04)');}
+        else if(zr>=1){g.addColorStop(0,'rgba(79,135,255,.22)');g.addColorStop(1,'rgba(79,135,255,.02)');}
+        else{g.addColorStop(0,'rgba(79,135,255,.22)');g.addColorStop(zr,'rgba(79,135,255,.1)');g.addColorStop(zr,'rgba(239,68,68,.15)');g.addColorStop(1,'rgba(239,68,68,.04)');}
+        return g;
+      },
+      pointBackgroundColor:spData.map(v=>v>=0?'#4f87ff':'#ef4444'),
+      pointRadius:5,pointHoverRadius:7,borderWidth:2,fill:true,tension:0.35
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' Saldo: '+tf(c.raw)}}},
+      scales:{
+        x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},
+        y:{ticks:{color:tc,font:{size:10},callback:tf},grid:{
+          color:ctx=>ctx.tick.value===0?'rgba(239,68,68,.4)':gc,
+          lineWidth:ctx=>ctx.tick.value===0?1.5:1
+        },min:minSP<0?minSP*1.1:undefined}
+      }
+    },
+    plugins:[{
+      id:'redZone',
+      beforeDraw(chart){
+        if(minSP>=0)return;
+        const{ctx,chartArea,scales:{y}}=chart;
+        if(!chartArea)return;
+        const zY=y.getPixelForValue(0);
+        if(zY>=chartArea.bottom)return;
+        ctx.save();ctx.fillStyle='rgba(239,68,68,.07)';
+        ctx.fillRect(chartArea.left,zY,chartArea.right-chartArea.left,chartArea.bottom-zY);
+        ctx.restore();
+      }
+    }]
+  });
+}
+ 
 // Helpers
 function M(v,sign=false){
   const a=Math.abs(v);
@@ -644,7 +736,7 @@ async function loadAll(){
 }
  
 // ── Render Flujo ──
-function renderFlujo(d){renderKPIs(d);renderCharts(d);renderTable(d);}
+function renderFlujo(d){window._lastDash=d;renderKPIs(d);renderCharts(d);renderTable(d);}
  
 function renderKPIs(d){
   const cfg=[
@@ -660,112 +752,6 @@ function renderKPIs(d){
       <div class="kpi-val ${k.vcls}">${M(k.val)}</div>
       <div class="kpi-sub">${k.sub}</div>
     </div>`).join('');
-}
- 
-function renderCharts(d){
-  if(flowCh){flowCh.destroy();flowCh=null;}
-  if(saldoCh){saldoCh.destroy();saldoCh=null;}
- 
-  const labels=d.weeks.map(w=>w.iso);
-  const gc='rgba(255,255,255,.06)', tc='#64748b';
-  const tf=v=>{const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6)return s+'$'+(a/1e6).toFixed(1)+'M';if(a>=1e3)return s+'$'+Math.round(a/1e3)+'k';return s+'$'+Math.round(a);};
-  const tt={backgroundColor:'#1a2236',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#94a3b8',padding:10};
- 
-  flowCh=new Chart(document.getElementById('flowChart'),{
-    type:'bar',
-    data:{labels,datasets:[
-      {label:'AR Cobro',    data:d.weeks.map(w=>w.inAR),    backgroundColor:'rgba(16,185,129,.8)', stack:'in'},
-      {label:'Crédito',     data:d.weeks.map(w=>w.inCred),  backgroundColor:'rgba(79,135,255,.8)', stack:'in'},
-      {label:'AP Pendiente',data:d.weeks.map(w=>-w.outAP),  backgroundColor:'rgba(239,68,68,.65)', stack:'out'},
-      {label:'Gastos',      data:d.weeks.map(w=>-w.outG),   backgroundColor:'rgba(245,158,11,.65)',stack:'out'},
-      {label:'NETO',        data:d.weeks.map(w=>w.neto),    type:'line',
-       borderColor:'transparent',backgroundColor:'transparent',
-       pointBackgroundColor:d.weeks.map(w=>w.neto>=0?'#10b981':'#ef4444'),
-       pointRadius:4,pointHoverRadius:6,borderWidth:0,tension:0},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' '+c.dataset.label+': '+tf(c.raw)}}},
-      scales:{
-        x:{stacked:true,ticks:{color:tc,font:{size:10}},grid:{color:gc}},
-        y:{stacked:true,ticks:{color:tc,font:{size:10},callback:tf},grid:{color:gc}}
-      }
-    }
-  });
- 
-  // Saldo chart with red below zero
-  const spData=d.weeks.map(w=>w.sp);
-  const minSP=Math.min(...spData,0);
-  const maxSP=Math.max(...spData,0);
- 
-  saldoCh=new Chart(document.getElementById('saldoChart'),{
-    type:'line',
-    data:{labels,datasets:[
-      // Positive area (blue)
-      {label:'Saldo +',data:spData,
-       borderColor:ctx=>{
-         // segment color: blue if positive, red if negative
-         return '#4f87ff';
-       },
-       segment:{
-         borderColor:ctx=>{
-           const v=ctx.p1.parsed.y;
-           return v<0?'#ef4444':'#4f87ff';
-         }
-       },
-       backgroundColor:ctx=>{
-         const {ctx:c,chartArea}=ctx.chart;
-         if(!chartArea)return'rgba(79,135,255,.1)';
-         // Gradient: blue above zero, red below
-         const zeroY=ctx.chart.scales.y.getPixelForValue(0);
-         const top=chartArea.top, bot=chartArea.bottom;
-         const g=c.createLinearGradient(0,top,0,bot);
-         // ratio of where zero sits
-         const zr=Math.max(0,Math.min(1,(zeroY-top)/(bot-top)));
-         if(zr<=0){g.addColorStop(0,'rgba(239,68,68,.2)');g.addColorStop(1,'rgba(239,68,68,.04)');}
-         else if(zr>=1){g.addColorStop(0,'rgba(79,135,255,.2)');g.addColorStop(1,'rgba(79,135,255,.04)');}
-         else{
-           g.addColorStop(0,'rgba(79,135,255,.2)');
-           g.addColorStop(zr,'rgba(79,135,255,.1)');
-           g.addColorStop(zr,'rgba(239,68,68,.15)');
-           g.addColorStop(1,'rgba(239,68,68,.04)');
-         }
-         return g;
-       },
-       pointBackgroundColor:spData.map(v=>v>=0?'#4f87ff':'#ef4444'),
-       pointRadius:4,pointHoverRadius:6,borderWidth:2,fill:true,tension:0.3
-      },
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' Saldo: '+tf(c.raw)}}},
-      scales:{
-        x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},
-        y:{
-          ticks:{color:tc,font:{size:10},callback:tf},
-          grid:{
-            color:ctx=>ctx.tick.value===0?'rgba(239,68,68,.4)':gc,
-            lineWidth:ctx=>ctx.tick.value===0?1.5:1,
-          },
-          min:minSP<0?minSP*1.1:undefined,
-        }
-      }
-    }
-  });
- 
-  // Draw red zone below zero
-  Chart.register({
-    id:'redZone',
-    beforeDraw(chart){
-      if(chart.canvas.id!=='saldoChart')return;
-      const {ctx,chartArea,scales:{y}}=chart;
-      if(!chartArea||minSP>=0)return;
-      const zeroY=y.getPixelForValue(0);
-      if(zeroY>=chartArea.bottom)return;
-      ctx.save();
-      ctx.fillStyle='rgba(239,68,68,.07)';
-      ctx.fillRect(chartArea.left,zeroY,chartArea.right-chartArea.left,chartArea.bottom-zeroY);
-      ctx.restore();
-    }
-  });
 }
  
 function renderTable(d){
@@ -1011,19 +997,23 @@ function renderGastos(rows){
   </tr>`).join('');
 }
  
-// Wait for Chart.js to load (deferred) then init
-function init(){
-  if(typeof Chart==='undefined'){
-    setTimeout(init,50);
-    return;
-  }
-  if(document.readyState==='complete'||document.readyState==='interactive'){
+// Wait for Chart.js (loaded dynamically) then init
+function waitForChartJS(){
+  if(typeof Chart!=='undefined'){
     loadAll();
   }else{
-    window.addEventListener('DOMContentLoaded',loadAll);
+    setTimeout(waitForChartJS,50);
   }
 }
-init();
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',waitForChartJS);
+}else{
+  waitForChartJS();
+}
+ 
+// Redraw on resize/rotation
+let _rt;
+window.addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{if(window._lastDash)renderCharts(window._lastDash);},250);});
 </script>
 </body>
 </html>
