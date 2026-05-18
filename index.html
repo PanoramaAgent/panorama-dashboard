@@ -319,6 +319,1039 @@ document.head.appendChild(_link);
 
   <div class="kpi-grid" id="kpi-grid"></div>
 
+  <!-- Week calendar strip — populated by renderWeekStrip() -->
+  <div id="week-strip" style="display:flex;overflow-x:auto;gap:6px;margin-bottom:20px;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch"></div>
+
+  <p class="sh">Saldo Proyectado — 12 semanas</p>
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Saldo Proyectado</div>
+      <div class="card-sub">Posición acumulada semana a semana</div>
+    </div>
+    <div class="card-body">
+      <div class="legend">
+        <span class="leg"><span class="leg-sq" style="background:#4f87ff"></span>Saldo positivo</span>
+        <span class="leg"><span class="leg-sq" style="background:#ef4444"></span>Saldo negativo</span>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="saldoChart" role="img" aria-label="Área saldo proyectado por semana"></canvas></div>
+    </div>
+  </div>
+
+  <p class="sh">Entradas vs Salidas — 12 semanas</p>
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title">Entradas vs Salidas</div>
+      <div class="card-sub">IN = AR Cobro + Crédito · OUT = AP Pendiente + Gastos · punto = NETO semanal</div>
+    </div>
+    <div class="card-body">
+      <div class="legend">
+        <span class="leg"><span class="leg-sq" style="background:#10b981"></span>AR Cobro</span>
+        <span class="leg"><span class="leg-sq" style="background:#4f87ff"></span>Crédito</span>
+        <span class="leg"><span class="leg-sq" style="background:#ef4444"></span>AP Pendiente</span>
+        <span class="leg"><span class="leg-sq" style="background:#f59e0b"></span>Gastos</span>
+        <span class="leg"><span class="leg-sq" style="background:#e8edf5;border-radius:50%"></span>NETO</span>
+      </div>
+      <div class="chart-wrap" style="height:280px"><canvas id="flowChart" role="img" aria-label="Barras apiladas entradas y salidas por semana"></canvas></div>
+    </div>
+  </div>
+
+  <p class="sh">Detalle semanal</p>
+  <div class="tbl-wrap">
+    <div class="tbl-bar">
+      <span style="font-size:12px;font-weight:500;color:var(--tx2)">Semanas W20 – W31</span>
+      <span style="font-size:10px;color:var(--tx3);font-family:var(--mono)">MXN pesos</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Semana</th><th>IN AR</th><th>IN Cred</th><th>OUT AP</th><th>OUT Gastos</th><th>NETO</th><th>Saldo Proy</th>
+        </tr></thead>
+        <tbody id="flow-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AR ═══ -->
+<div class="tab-panel" id="tab-ar">
+  <p class="sh">Cuentas por cobrar pendientes — agrupadas por semana estimada de cobro</p>
+  <div id="ar-weeks-container"><div class="no-data" style="padding:28px;text-align:center;color:var(--tx3)">Cargando...</div></div>
+</div>
+
+<!-- ═══ AP ═══ -->
+<div class="tab-panel" id="tab-ap">
+  <p class="sh">Cuentas por pagar pendientes — agrupadas por semana</p>
+  <div id="ap-weeks-container"><div class="no-data" style="padding:28px;text-align:center;color:var(--tx3)">Cargando...</div></div>
+</div>
+
+<!-- ═══ CFDI ═══ -->
+<div class="tab-panel" id="tab-cfdi">
+  <p class="sh">Facturas pagadas sin CFDI — AP Pagado · Folio Fiscal = N/A</p>
+  <div class="tbl-wrap">
+    <div class="tbl-bar">
+      <span style="font-size:12px;font-weight:500;color:var(--tx)">Pendientes de CFDI</span>
+      <span class="bdg bdg-red" id="cfdi-cnt">–</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th class="al">Fecha Pago</th>
+          <th class="al">Factura / PO</th>
+          <th class="al">Proveedor</th>
+          <th>Total</th>
+          <th>Importe Pagado</th>
+          <th class="al">Ref. SPEI</th>
+        </tr></thead>
+        <tbody id="cfdi-tbody"><tr><td colspan="6" class="no-data">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GASTOS ═══ -->
+<div class="tab-panel" id="tab-gastos">
+  <p class="sh">Nómina recurrente</p>
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-body" style="padding:14px 18px;display:flex;flex-direction:column;gap:0">
+      <div class="payroll-row">
+        <div class="payroll-left">
+          <span class="cat cat-nomina">Nómina</span>
+          <span class="payroll-name">Semanal</span>
+          <span class="payroll-meta">Viernes · Semanal</span>
+        </div>
+        <div class="payroll-amount" id="pay-sem">$65,000</div>
+      </div>
+      <div class="payroll-row">
+        <div class="payroll-left">
+          <span class="cat cat-nomina">Nómina</span>
+          <span class="payroll-name">Quincenal</span>
+          <span class="payroll-meta">Días 1 y 15 · Quincenal</span>
+        </div>
+        <div class="payroll-amount" id="pay-quin">$80,000</div>
+      </div>
+      <div class="payroll-row" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+        <div class="payroll-left">
+          <span class="cat cat-nomina">Nómina</span>
+          <span class="payroll-name">Mensual</span>
+          <span class="payroll-meta">Día 25 · Mensual</span>
+        </div>
+        <div class="payroll-amount" id="pay-men">$615,000</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sh">Gastos adicionales</p>
+  <div class="tbl-wrap">
+    <div class="tbl-bar">
+      <span style="font-size:12px;font-weight:500;color:var(--tx2)">Entradas manuales en GASTOS tab</span>
+      <span style="font-size:10px;color:var(--tx3);font-family:var(--mono)" id="gastos-ttl"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th class="al">Descripción</th>
+          <th class="al">Categoría</th>
+          <th class="al">Frecuencia</th>
+          <th class="al">Semana ISO</th>
+          <th>Monto</th>
+        </tr></thead>
+        <tbody id="gastos-tbody"><tr><td colspan="5" class="no-data">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DASH_ID='1u6z9tURJUOiJcVAewj8AIZ88B-F8k0LPZ_nEe72avOo';
+const AP_ID  ='1nrNU5PDY_bnbMBC77OHYKCW0_fQwbs4u17Q7Sa7khbo';
+
+// Static fallback — live values from sheet May 14, 2026
+const STATIC={
+  saldo:303570.65,
+  weeks:[
+    {iso:'W20',lunes:'11/05',inAR:88781.18,    inCred:0, outAP:1038434.43, outG:145000,   neto:-1094653.25, sp:-791082.60},
+    {iso:'W21',lunes:'18/05',inAR:10014624,    inCred:0, outAP:1343760,    outG:2415000,  neto:6255864,     sp:5464781.40},
+    {iso:'W22',lunes:'25/05',inAR:0,           inCred:0, outAP:1031894.81, outG:680000,   neto:-1711894.81, sp:3752886.59},
+    {iso:'W23',lunes:'01/06',inAR:238464,      inCred:0, outAP:14263.88,   outG:2155000,  neto:-1930799.88, sp:1822086.71},
+    {iso:'W24',lunes:'08/06',inAR:206682.84,   inCred:0, outAP:322388.98,  outG:65000,    neto:-180706.14,  sp:1641380.57},
+    {iso:'W25',lunes:'15/06',inAR:4860034.56,  inCred:0, outAP:0,          outG:1545000,  neto:3315034.56,  sp:4956415.13},
+    {iso:'W26',lunes:'22/06',inAR:2410767.36,  inCred:0, outAP:0,          outG:680000,   neto:1730767.36,  sp:6687182.49},
+    {iso:'W27',lunes:'29/06',inAR:0,           inCred:0, outAP:0,          outG:145000,   neto:-145000,     sp:6542182.49},
+    {iso:'W28',lunes:'06/07',inAR:0,           inCred:0, outAP:0,          outG:325000,   neto:-325000,     sp:6217182.49},
+    {iso:'W29',lunes:'13/07',inAR:0,           inCred:0, outAP:0,          outG:145000,   neto:-145000,     sp:6072182.49},
+    {iso:'W30',lunes:'20/07',inAR:0,           inCred:0, outAP:0,          outG:680000,   neto:-680000,     sp:5392182.49},
+    {iso:'W31',lunes:'27/07',inAR:0,           inCred:0, outAP:0,          outG:145000,   neto:-145000,     sp:5247182.49},
+  ],
+  kpis:{ar:17819353.94,ap:3750742.10,gastos:9125000,cred:0,neta:5247182.49,flags:1}
+};
+
+// Static CFDI — AP Pagado rows where Folio Fiscal = N/A as of May 14
+// Note: B71476 now has UUID 4C18FCA7... and V07001561 is N/A (PO paid, awaiting CFDI)
+const STATIC_CFDI=[
+  {fechaPago:'07/05/2026',factura:'TA2025-0313',proveedor:'CARGO Y LOGISTICA DEL CENTRO SA DE CV',total:101005,    importePagado:101005,    refSPEI:'Vacio y almacenaje LZO26 00548'},
+  {fechaPago:'08/05/2026',factura:'—',           proveedor:'GRUPO NUTRISA',                        total:0,         importePagado:54975.88,  refSPEI:'Pago intereses al 30 de abril'},
+  {fechaPago:'08/05/2026',factura:'V07001561',   proveedor:'CUANDA, S.A. DE C.V.',                 total:1461370.79,importePagado:1461370.79,refSPEI:'Pago F V07001561'},
+];
+
+let flowCh=null,saldoCh=null;
+
+function renderCharts(d){
+  if(flowCh){flowCh.destroy();flowCh=null;}
+  if(saldoCh){saldoCh.destroy();saldoCh=null;}
+
+  const labels=d.weeks.map(w=>w.iso.replace('2026-',''));
+  const gc='rgba(255,255,255,.06)',tc='#64748b';
+  const tf=v=>{const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6)return s+'$'+(a/1e6).toFixed(1)+'M';if(a>=1e3)return s+'$'+Math.round(a/1e3)+'k';return s+'$'+Math.round(a);};
+  const tt={backgroundColor:'#1a2236',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#94a3b8',padding:10,callbacks:{label:c=>' '+c.dataset.label+': '+tf(c.raw)}};
+
+  flowCh=new Chart(document.getElementById('flowChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'AR Cobro',    data:d.weeks.map(w=>w.inAR),   backgroundColor:'rgba(16,185,129,.82)',stack:'in'},
+      {label:'Crédito',     data:d.weeks.map(w=>w.inCred), backgroundColor:'rgba(79,135,255,.82)',stack:'in'},
+      {label:'AP Pendiente',data:d.weeks.map(w=>-w.outAP), backgroundColor:'rgba(239,68,68,.68)', stack:'out'},
+      {label:'Gastos',      data:d.weeks.map(w=>-w.outG),  backgroundColor:'rgba(245,158,11,.68)',stack:'out'},
+      {label:'NETO',        data:d.weeks.map(w=>w.neto),   type:'line',
+       borderColor:'transparent',backgroundColor:'transparent',
+       pointBackgroundColor:d.weeks.map(w=>w.neto>=0?'#10b981':'#ef4444'),
+       pointRadius:5,pointHoverRadius:7,borderWidth:0,tension:0,
+       tooltip:{callbacks:{label:c=>' NETO: '+tf(c.raw)}}},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tt}},
+      scales:{
+        x:{stacked:true,ticks:{color:tc,font:{size:10}},grid:{color:gc}},
+        y:{stacked:true,ticks:{color:tc,font:{size:10},callback:tf},grid:{color:gc}}
+      }
+    }
+  });
+
+  const spData=d.weeks.map(w=>w.sp);
+  const minSP=Math.min(...spData,0);
+
+  saldoCh=new Chart(document.getElementById('saldoChart'),{
+    type:'line',
+    data:{labels,datasets:[{
+      label:'Saldo Proyectado',
+      data:spData,
+      segment:{borderColor:ctx=>ctx.p1.parsed.y<0?'#ef4444':'#4f87ff'},
+      backgroundColor:ctx=>{
+        const {ctx:c,chartArea}=ctx.chart;
+        if(!chartArea)return'rgba(79,135,255,.1)';
+        const zY=ctx.chart.scales.y.getPixelForValue(0);
+        const top=chartArea.top,bot=chartArea.bottom;
+        const g=c.createLinearGradient(0,top,0,bot);
+        const zr=Math.max(0,Math.min(1,(zY-top)/(bot-top)));
+        if(zr<=0){g.addColorStop(0,'rgba(239,68,68,.2)');g.addColorStop(1,'rgba(239,68,68,.04)');}
+        else if(zr>=1){g.addColorStop(0,'rgba(79,135,255,.22)');g.addColorStop(1,'rgba(79,135,255,.02)');}
+        else{g.addColorStop(0,'rgba(79,135,255,.22)');g.addColorStop(zr,'rgba(79,135,255,.1)');g.addColorStop(zr,'rgba(239,68,68,.15)');g.addColorStop(1,'rgba(239,68,68,.04)');}
+        return g;
+      },
+      pointBackgroundColor:spData.map(v=>v>=0?'#4f87ff':'#ef4444'),
+      pointRadius:5,pointHoverRadius:7,borderWidth:2,fill:true,tension:0.35
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' Saldo: '+tf(c.raw)}}},
+      scales:{
+        x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},
+        y:{ticks:{color:tc,font:{size:10},callback:tf},grid:{
+          color:ctx=>ctx.tick.value===0?'rgba(239,68,68,.4)':gc,
+          lineWidth:ctx=>ctx.tick.value===0?1.5:1
+        },min:minSP<0?minSP*1.1:undefined}
+      }
+    },
+    plugins:[{
+      id:'redZone',
+      beforeDraw(chart){
+        if(minSP>=0)return;
+        const{ctx,chartArea,scales:{y}}=chart;
+        if(!chartArea)return;
+        const zY=y.getPixelForValue(0);
+        if(zY>=chartArea.bottom)return;
+        ctx.save();ctx.fillStyle='rgba(239,68,68,.07)';
+        ctx.fillRect(chartArea.left,zY,chartArea.right-chartArea.left,chartArea.bottom-zY);
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+// Helpers
+function M(v,sign=false){
+  const a=Math.abs(v);
+  let s;
+  if(a>=1e6)s='$'+(a/1e6).toFixed(2)+'M';
+  else if(a>=1e3)s='$'+Math.round(a/1e3).toLocaleString('es-MX')+'k';
+  else s='$'+Math.round(a).toLocaleString('es-MX');
+  if(v<0)return'-'+s;
+  if(sign&&v>0)return'+'+s;
+  return s;
+}
+function pMXN(v){
+  if(!v&&v!==0)return 0;
+  // Sheets API sometimes returns "\-$1,234" with a backslash before the minus
+  const s=String(v).replace(/\\/g,'').replace(/[$,\s()]/g,'');
+  const n=parseFloat(s);
+  return isNaN(n)?0:n;
+}
+function fDate(v){
+  if(!v)return'—';
+  const s=String(v).trim();
+  const MES=['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  // DD/MM/YYYY
+  if(/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(s)){const[d,m,y]=s.split('/');return d+'/'+MES[+m]+(y?'/'+(y.length===4?y.slice(2):y):'');}
+  // YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)){const p=s.split('-');return p[2]+'/'+MES[+p[1]]+'/'+(p[0].slice(2));}
+  return s;
+}
+function catCls(c){
+  if(!c)return'cat-otro';
+  const l=c.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(l.includes('nomina'))return'cat-nomina';
+  if(l.includes('importa'))return'cat-importacion';
+  if(l.includes('impuesto'))return'cat-impuesto';
+  if(l.includes('prestamo'))return'cat-prestamo';
+  if(l.includes('credito'))return'cat-credito';
+  if(l.includes('bono'))return'cat-bono';
+  if(l.includes('extra'))return'cat-extra';
+  return'cat-otro';
+}
+function isNomina(r){
+  const d=(r.desc||'').toLowerCase(), c=(r.cat||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return c.includes('nomina')&&(d.includes('semanal')||d.includes('quincenal')||d.includes('mensual'));
+}
+
+// ── Date helpers ──
+function parseDateStr(s){
+  if(!s)return null;
+  // dd/MM/yyyy
+  const m1=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m1)return new Date(+m1[3],+m1[2]-1,+m1[1]);
+  // yyyy-MM-dd or ISO timestamp
+  const d=new Date(s);
+  return isNaN(d.getTime())?null:d;
+}
+function isoWeekStr(d){
+  const dt=new Date(d); dt.setHours(0,0,0,0);
+  dt.setDate(dt.getDate()+3-((dt.getDay()+6)%7));
+  const w1=new Date(dt.getFullYear(),0,4);
+  const wn=1+Math.round(((dt-w1)/86400000-3+((w1.getDay()+6)%7))/7);
+  return dt.getFullYear()+'-W'+String(wn).padStart(2,'0');
+}
+
+// ── UI ──
+function toggleApi(){const p=document.getElementById('api-panel');p.style.display=p.style.display==='flex'?'none':'flex';}
+function saveKey(){const k=document.getElementById('apiKey').value.trim();if(!k)return;localStorage.setItem('pf_k',k);document.getElementById('api-panel').style.display='none';loadAll();}
+function clearKey(){localStorage.removeItem('pf_k');document.getElementById('apiKey').value='';loadAll();}
+function showErr(m){const e=document.getElementById('err');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',8000);}
+function switchTab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+n).classList.add('active');}
+function showHelp(){alert('1. console.cloud.google.com → proyecto PA Dashboard Claude\n2. APIs y servicios → Biblioteca → "Google Sheets API" → Habilitar\n3. Credenciales → + Crear credenciales → Clave de API\n4. Editar → Restricciones de API → Google Sheets API\n5. En AMBOS sheets: Compartir → Cualquier persona con el link → Lector\n6. Pegar el key aquí y hacer clic Guardar');}
+function setStatus(live){
+  document.getElementById('sdot').className='dot'+(live?' live':'');
+  document.getElementById('stxt').textContent=live?'live · Google Sheets':'estático';
+  document.getElementById('last-ts').textContent='Flujo 12 semanas · '+new Date().toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+// Fetch
+async function batchGet(id,ranges,key){
+  const q=ranges.map(r=>'ranges='+encodeURIComponent(r)).join('&');
+  const res=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values:batchGet?${q}&key=${key}`);
+  if(!res.ok){const j=await res.json().catch(()=>({}));throw new Error('HTTP '+res.status+(j.error?.message?' – '+j.error.message:''));}
+  return (await res.json()).valueRanges;
+}
+
+// Main load
+async function loadAll(){
+  const key=localStorage.getItem('pf_k');
+  if(!key){setStatus(false);renderFlujo(STATIC);renderAR([]);renderAP([]);renderCFDI(STATIC_CFDI);renderGastos([]);return;}
+
+  let dashData=STATIC, cfdiRows=STATIC_CFDI, gastosRows=[], arRows=[], apPendingRows=[];
+
+  // Single batchGet for all Pre-Dashboard data to avoid quota limits
+  try{
+    const vr=await batchGet(DASH_ID,[
+      'WEEKLY_SUMMARY!B2',      // [0] saldo bancario
+      'WEEKLY_SUMMARY!A6:K17',  // [1] 12 weekly rows
+      'WEEKLY_SUMMARY!E22:E27', // [2] KPIs
+      'GASTOS!A1:G300',         // [3] gastos tab full
+      'GASTOS!D2:D4',           // [4] payroll config amounts
+      'DATA_AR!A3:J501',        // [5] AR source data
+      'DATA_AR!L3:L501',        // [6] AR Semana ISO
+      'DATA_AP!A3:S501',        // [7] AP source data
+      'DATA_AP!X3:X501',        // [8] AP Semana ISO
+    ],key);
+
+    // ── Weekly summary + KPIs ──
+    const saldo=pMXN(vr[0].values?.[0]?.[0])||150000;
+    const weeks=(vr[1].values||[]).map((r,i)=>({
+      iso:   r[1]||'W'+(20+i),
+      lunes: r[2]?String(r[2]).slice(0,5):'',
+      inAR:  pMXN(r[4]), inCred:pMXN(r[5]),
+      outAP: pMXN(r[6]), outG:  pMXN(r[7]),
+      neto:  pMXN(r[8]), sp:    pMXN(r[9]),
+    }));
+    const kv=(vr[2].values||[]).map(r=>pMXN(r[0]));
+    const kpis={ar:kv[0]||0,ap:kv[1]||0,gastos:kv[2]||0,cred:kv[3]||0,neta:kv[4]||0,flags:kv[5]||0};
+    dashData={saldo,weeks,kpis};
+
+    // ── Payroll config ──
+    const payCfg=vr[4].values||[];
+    const cS=pMXN(payCfg[0]?.[0]), cQ=pMXN(payCfg[1]?.[0]), cM=pMXN(payCfg[2]?.[0]);
+    const elS=document.getElementById('pay-sem'), elQ=document.getElementById('pay-quin'), elM=document.getElementById('pay-men');
+    if(cS&&elS) elS.textContent=M(cS);
+    if(cQ&&elQ) elQ.textContent=M(cQ);
+    if(cM&&elM) elM.textContent=M(cM);
+
+    // ── Gastos tab ──
+    gastosRows=(vr[3].values||[])
+      .filter(r=>{const raw=String(r[0]||'').trim(),num=Number(raw);return raw!==''&&Number.isInteger(num)&&num>0&&pMXN(r[3])>0;})
+      .map(r=>({desc:r[1]||'',cat:r[2]||'',freq:r[5]||'',monto:pMXN(r[3]),dia:r[4]||'',iso:r[6]||''}))
+      .filter(r=>!isNomina(r));
+
+    // ── AR rows ──
+    const arSrc=vr[5].values||[], arIso=vr[6].values||[];
+    arRows=arSrc.map((r,i)=>{
+      const total=pMXN(r[8]); if(total<=0) return null;
+      let iso=String(arIso[i]?.[0]||'').trim();
+      if(!iso){const cd=parseDateStr(String(r[9]||'').trim());if(cd)iso=isoWeekStr(cd);}
+      const oc=String(r[2]||'').trim();
+      return{fecha:r[0]||'',cliente:r[1]||'',oc,desc:r[4]||'',total,fechaCobro:r[9]||'',iso,isProforma:oc.toUpperCase()==='PROFORMA'};
+    }).filter(Boolean);
+
+    // ── AP rows ──
+    const apSrc=vr[7].values||[], apIso=vr[8].values||[];
+    apPendingRows=apSrc.map((r,i)=>{
+      const status=String(r[17]||'').trim().toLowerCase();
+      const total=pMXN(r[12]);
+      if(total<=0||status==='pagado') return null;
+      let iso=String(apIso[i]?.[0]||'').trim();
+      if(!iso){const vd=parseDateStr(String(r[18]||'').trim());if(vd)iso=isoWeekStr(vd);}
+      return{fecha:r[0]||'',factura:r[1]||'',proveedor:r[3]||'',desc:r[5]||'',total,status:r[17]||'',vence:r[18]||'',iso};
+    }).filter(Boolean);
+
+    setStatus(true);
+  }catch(e){
+    showErr('Error cargando datos: '+e.message);
+    setStatus(false);
+  }
+
+  // AP Pagado — separate sheet, separate call
+  try{
+    const apVr=await batchGet(AP_ID,['AP — Pagado!A2:X300'],key);
+    const rows=apVr[0].values||[];
+    cfdiRows=rows.filter(r=>r.length>1).filter(r=>{
+      const folio=(r[2]||'').trim();
+      return folio===''||folio.toLowerCase()==='n/a';
+    }).map(r=>({
+      fechaPago:r[20]||r[0]||'',factura:r[1]||'—',proveedor:r[3]||'—',
+      total:pMXN(r[12]),importePagado:pMXN(r[21]),refSPEI:r[22]||'—',
+    }));
+  }catch(e){
+    showErr('Error CFDI: '+e.message+'. Datos estáticos.');
+  }
+
+  renderFlujo(dashData);
+  renderAR(arRows);
+  renderAP(apPendingRows);
+  renderCFDI(cfdiRows);
+  renderGastos(gastosRows);
+}
+
+// ── Render Flujo ──
+function renderFlujo(d){window._lastDash=d;renderKPIs(d);renderCharts(d);renderWeekStrip(d);renderTable(d);}
+
+function renderWeekStrip(d){
+  const el=document.getElementById('week-strip');
+  if(!el)return;
+  el.innerHTML=d.weeks.map((w,i)=>{
+    // Parse lunes date from the sheet e.g. "18/05/2026" or "18/05"
+    const lStr=w.lunes||'';
+    let monDate=null;
+    const m=lStr.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+    if(m){
+      const yr=m[3]?parseInt(m[3].length===2?'20'+m[3]:m[3]):new Date().getFullYear();
+      monDate=new Date(yr,parseInt(m[2])-1,parseInt(m[1]));
+    }
+    let rangeStr='';
+    if(monDate){
+      const sun=new Date(monDate);sun.setDate(monDate.getDate()+6);
+      const fmt=d=>String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+      rangeStr=fmt(monDate)+'–'+fmt(sun);
+    }
+    const shortIso=w.iso.replace(/\d{4}-/,'');
+    const isCur=i===0;
+    return`<div class="week-chip${isCur?' cur':''}">
+      <div class="week-chip-iso">${shortIso}</div>
+      <div class="week-chip-dates">${rangeStr}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderKPIs(d){
+  const cfg=[
+    {lbl:'Saldo Bancario',   val:d.saldo,      cls:'c-blue', vcls:'blue', sub:'actualizar cada viernes'},
+    {lbl:'Por Cobrar AR',    val:d.kpis.ar,    cls:'c-green',vcls:'green',sub:'12 semanas abiertas'},
+    {lbl:'AP Pendiente',     val:d.kpis.ap,    cls:'c-red',  vcls:'red',  sub:'por pagar'},
+    {lbl:'Gastos Fijos 12s', val:d.kpis.gastos,cls:'c-amber',vcls:'amber',sub:'nómina + operativos'},
+    {lbl:'Posición Neta Real',val:d.kpis.neta, cls:'c-teal', vcls:d.kpis.neta>=0?'teal':'red',sub:'AR – AP – Gastos'},
+  ];
+  document.getElementById('kpi-grid').innerHTML=cfg.map(k=>`
+    <div class="kpi ${k.cls}">
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val ${k.vcls}">${M(k.val)}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+function renderTable(d){
+  document.getElementById('flow-tbody').innerHTML=d.weeks.map((w,i)=>`
+    <tr class="${i===0?'cur':''}">
+      <td class="al">${w.lunes}<span class="bdg ${i===0?'bdg-blue':'bdg-gray'}" style="margin-left:6px">${w.iso}${i===0?' · actual':''}</span></td>
+      <td style="color:#10b981">${w.inAR>0?M(w.inAR):'—'}</td>
+      <td style="color:#4f87ff">${w.inCred>0?M(w.inCred):'—'}</td>
+      <td style="color:#ef4444">${w.outAP>0?M(w.outAP):'—'}</td>
+      <td style="color:#f59e0b">${M(w.outG)}</td>
+      <td class="${w.neto>=0?'pos':'neg'}">${M(w.neto,true)}</td>
+      <td class="${w.sp>=0?'teal-v':'teal-n'}">${M(w.sp)}</td>
+    </tr>`).join('');
+}
+
+// ── Global: ISO week string → "DD/MM – DD/MM" date range ──
+function isoWeekToRange(isoStr){
+  const m=isoStr.match(/(\d{4})-W(\d{2})/);
+  if(!m)return'';
+  const year=+m[1], week=+m[2];
+  const jan4=new Date(year,0,4);
+  const w1Mon=new Date(jan4);
+  w1Mon.setDate(jan4.getDate()-((jan4.getDay()+6)%7));
+  const mon=new Date(w1Mon);
+  mon.setDate(w1Mon.getDate()+(week-1)*7);
+  const sun=new Date(mon);
+  sun.setDate(mon.getDate()+6);
+  const fmt=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  return`${fmt(mon)} – ${fmt(sun)}`;
+}
+
+// ── Render AR tab ──
+function renderAR(rows){
+  const container=document.getElementById('ar-weeks-container');
+
+  // Static fallback with current AR data
+  if(rows.length===0){
+    rows=[
+      {fecha:'23/04/2026',cliente:'NUTRISA',oc:'P343800',  desc:'Granel Mango Tamborines / Cacahuate / Mix Mexicano', total:88781.18,  fechaCobro:'15/05/2026',iso:'2026-W20'},
+      {fecha:'25/04/2026',cliente:'NUTRISA',oc:'P339916',  desc:'Granel Aros Dzno / Mango Chamoy / Cholula',          total:275297.40, fechaCobro:'15/05/2026',iso:'2026-W20'},
+      {fecha:'25/04/2026',cliente:'NUTRISA',oc:'P345106',  desc:'Granel Aros / Mango Chamoy / Cholula (OC grande)',   total:6912000,   fechaCobro:'22/05/2026',iso:'2026-W21'},
+      {fecha:'07/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'78 pallets Osos Franks',                             total:3014750,   fechaCobro:'22/05/2026',iso:'2026-W21',isProforma:true},
+      {fecha:'07/05/2026',cliente:'NUTRISA',oc:'P345290',  desc:'Granel Mango / Chamoy / Cholula adicional',          total:2770000,   fechaCobro:'29/05/2026',iso:'2026-W22'},
+      {fecha:'01/05/2026',cliente:'NUTRISA',oc:'P343784',  desc:'Granel Mix Cholula',                                 total:107000,    fechaCobro:'06/06/2026',iso:'2026-W23'},
+      {fecha:'01/05/2026',cliente:'NUTRISA',oc:'P343785',  desc:'Granel Mix Cholula adicional',                       total:131464,    fechaCobro:'06/06/2026',iso:'2026-W23'},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'P345092',  desc:'Granel surtido Nutrisa',                             total:207000,    fechaCobro:'13/06/2026',iso:'2026-W24'},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'Mix Cholula x3 lotes',                               total:2410767,   fechaCobro:'20/06/2026',iso:'2026-W25',isProforma:true},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'Mix Cholula x3 lotes (2do envío)',                   total:2205000,   fechaCobro:'27/06/2026',iso:'2026-W26',isProforma:true},
+      {fecha:'09/05/2026',cliente:'NUTRISA',oc:'PROFORMA', desc:'Mix Cholula x3 lotes (3er envío)',                   total:2410767,   fechaCobro:'04/07/2026',iso:'2026-W27',isProforma:true},
+    ];
+  }
+
+  if(rows.length===0){container.innerHTML='<div class="no-data">Sin cuentas por cobrar</div>';return;}
+
+  // Group by ISO week
+  const weekMap={}, weekOrder=[];
+  rows.forEach(r=>{
+    const w=r.iso||'Sin semana';
+    if(!weekMap[w]){weekMap[w]=[];weekOrder.push(w);}
+    weekMap[w].push(r);
+  });
+  weekOrder.sort((a,b)=>{
+    if(a==='Sin semana')return 1; if(b==='Sin semana')return -1;
+    return a.localeCompare(b);
+  });
+
+  container.innerHTML=weekOrder.map(iso=>{
+    const wRows=weekMap[iso];
+    const weekTotal=wRows.reduce((s,r)=>s+r.total,0);
+    const shortIso=iso.replace('2026-','');
+    const dateRange=isoWeekToRange(iso);
+
+    const rowsHtml=wRows.map(r=>{
+      const isProforma=r.isProforma||(r.oc||'').toUpperCase()==='PROFORMA';
+      const ocDisplay=isProforma
+        ?`<span style="font-family:var(--mono);font-size:11px;color:var(--amber)">PROFORMA</span>`
+        :`<span style="font-family:var(--mono);font-size:11px;color:var(--tx2)">${r.oc||'—'}</span>`;
+      const clienteShort=(r.cliente||'').length>20?(r.cliente||'').slice(0,18)+'…':r.cliente||'—';
+      const rowStyle=isProforma?'background:rgba(245,158,11,.04)':'';
+      return `<tr style="${rowStyle}">
+        <td class="al" style="font-family:var(--mono);font-size:11px;color:var(--tx3)">${fDate(r.fecha)}</td>
+        <td class="al">${ocDisplay}</td>
+        <td class="al" style="font-weight:500">${clienteShort}</td>
+        <td class="al" style="font-size:11px;color:var(--tx3);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc||'—'}</td>
+        <td style="color:var(--green);font-weight:500">${M(r.total)}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="ap-week">
+      <div class="ap-week-hd">
+        <span class="ap-week-iso">${shortIso}</span>
+        <span class="ap-week-dates">${dateRange}</span>
+        <span class="ap-week-total" style="color:var(--green)">${M(weekTotal)}</span>
+      </div>
+      <div class="ap-week-table">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th class="al">Fecha</th>
+              <th class="al">No. OC / PO</th>
+              <th class="al">Cliente</th>
+              <th class="al">Descripción</th>
+              <th>Total</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Render AP tab ──
+function renderAP(rows){
+  const container=document.getElementById('ap-weeks-container');
+
+  // Use static data when no live data
+  if(rows.length===0){
+    // Static AP from live sheet read
+    rows=[
+      {fecha:'06/05/2026',factura:'PROFORMA',proveedor:'ALIMENTOS PROMAIZ',    desc:'Churrito Nopal Habanero',         total:360000,    status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'11/05/2026',factura:'PROFORMA',proveedor:'Botanas FrimeX',        desc:'Papa Frita Limón 2.5kg',          total:590490,    status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'GRACOS',               desc:'Doypack Botamix + Cholula',       total:360000,    status:'Pendiente',vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'GRACOS',               desc:'Doypack Cholula',                 total:360000,    status:'Pendiente',vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'06/05/2026',factura:'PROFORMA',proveedor:'ALIMENTOS PROMAIZ',    desc:'Churrito Nopal Habanero',         total:360000,    status:'',         vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'13/05/2026',factura:'PROFORMA',proveedor:'GM GRUPO MEDESA',      desc:'',                                total:210000,    status:'',         vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'08/05/2026',factura:'CPI330',  proveedor:'SUSANA PANALES ESPINO',desc:'Flete LZC-Toluca Mango',          total:53760,     status:'Pendiente',vence:'22/05/2026',iso:'2026-W21'},
+      {fecha:'11/05/2026',factura:'D6448',   proveedor:'CHILIGRIN',            desc:'Extra + Chilidulce',              total:248386.59, status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'08/05/2026',factura:'ABMEDF96532',proveedor:'LAB. ABC QUIMICA', desc:'Análisis Goma Osos Franks',        total:5452,      status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'28/04/2026',factura:'MX5800860',proveedor:'ULINE',               desc:'Bolsas Polietileno 8x12',         total:7245.13,   status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'12/05/2026',factura:'B53252',  proveedor:'Corrugados Fuertes',   desc:'Charolas cartón corrugado',       total:355314.09, status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'07/05/2026',factura:'TMD30198',proveedor:'99 MINUTOS.COM',       desc:'Servicios Transportación Abr',    total:95497,     status:'',         vence:'25/05/2026',iso:'2026-W22'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'Corrugados Fuertes',   desc:'Charolas Mango Chamoy',           total:150000,    status:'Pendiente',vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'13/05/2026',factura:'PROFORMA',proveedor:'GM GRUPO MEDESA',      desc:'',                                total:170000,    status:'',         vence:'27/05/2026',iso:'2026-W22'},
+      {fecha:'06/05/2026',factura:'TTB554',  proveedor:'GM GRUPO MEDESA',      desc:'Cacahuate Salado/Enchilado',      total:14263.88,  status:'',         vence:'01/06/2026',iso:'2026-W23'},
+      {fecha:'12/05/2026',factura:'MX5828580',proveedor:'ULINE',               desc:'Bolsas Polietileno 24x30',        total:13622.83,  status:'Pendiente',vence:'12/06/2026',iso:'2026-W24'},
+      {fecha:'08/05/2026',factura:'OC00014', proveedor:'GRUPO KUPINZ',         desc:'Materiales limpieza/protección',  total:60379.56,  status:'',         vence:'08/06/2026',iso:'2026-W24'},
+      {fecha:'06/04/2026',factura:'OC00013', proveedor:'GRUPO KUPINZ',         desc:'Limpieza e insumos varios',       total:30662.45,  status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'02/03/2026',factura:'OC00012', proveedor:'GRUPO KUPINZ',         desc:'Material higiene industrial',     total:57281.98,  status:'',         vence:'15/05/2026',iso:'2026-W20'},
+      {fecha:'08/05/2026',factura:'PROFORMA',proveedor:'CHILIGRIN',            desc:'Extra + Chilidulce',              total:248386.59, status:'Pendiente',vence:'12/06/2026',iso:'2026-W24'},
+    ];
+  }
+
+  if(rows.length===0){container.innerHTML='<div class="no-data">Sin facturas pendientes</div>';return;}
+
+  // Group by ISO week
+  const weekMap={};
+  const weekOrder=[];
+  rows.forEach(r=>{
+    const w=r.iso||'Sin semana';
+    if(!weekMap[w]){weekMap[w]=[];weekOrder.push(w);}
+    weekMap[w].push(r);
+  });
+  // Sort weeks
+  weekOrder.sort((a,b)=>{
+    if(a==='Sin semana')return 1; if(b==='Sin semana')return -1;
+    return a.localeCompare(b);
+  });
+
+  container.innerHTML=weekOrder.map(iso=>{
+    const wRows=weekMap[iso];
+    const weekTotal=wRows.reduce((s,r)=>s+r.total,0);
+    const shortIso=iso.replace('2026-','');
+    const dateRange=isoWeekToRange(iso);
+
+    const rowsHtml=wRows.map(r=>{
+      const isProforma=(r.factura||'').toUpperCase()==='PROFORMA';
+      const statusBdg=isProforma
+        ?'<span class="bdg-proforma">PROFORMA</span>'
+        :r.status==='Pendiente'?'<span class="bdg-pendiente">Pendiente</span>'
+        :r.status?`<span class="bdg-na">${r.status}</span>`:'<span class="bdg-na">N/A</span>';
+      const rowStyle=isProforma?'background:rgba(245,158,11,.06)':'';
+      const provShort=r.proveedor.length>28?r.proveedor.slice(0,26)+'…':r.proveedor;
+      return `<tr style="${rowStyle}">
+        <td class="al" style="font-family:var(--mono);font-size:11px;color:var(--tx3)">${fDate(r.fecha)}</td>
+        <td class="al" style="font-family:var(--mono);font-size:11px;${isProforma?'color:var(--amber)':''}">${r.factura}</td>
+        <td class="al">${provShort}</td>
+        <td class="al" style="font-size:11px;color:var(--tx3);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc||'—'}</td>
+        <td>${M(r.total)}</td>
+        <td class="al">${fDate(r.vence)}</td>
+        <td>${statusBdg}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="ap-week">
+      <div class="ap-week-hd">
+        <span class="ap-week-iso">${shortIso}</span>
+        <span class="ap-week-dates">${dateRange}</span>
+        <span class="ap-week-total">${M(weekTotal)}</span>
+      </div>
+      <div class="ap-week-table">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th class="al">Fecha</th><th class="al">Factura</th><th class="al">Proveedor</th>
+              <th class="al">Descripción</th><th>Total</th><th class="al">Vencimiento</th><th class="al">Status</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Render CFDI ──
+function renderCFDI(rows){
+  const cnt=document.getElementById('cfdi-cnt');
+  const tbody=document.getElementById('cfdi-tbody');
+  cnt.textContent=rows.length+' sin CFDI';
+  cnt.className='bdg '+(rows.length>0?'bdg-red':'bdg-green');
+  if(rows.length===0){
+    tbody.innerHTML='<tr><td colspan="6" class="no-data" style="color:var(--green)">✓ Todas las facturas pagadas tienen CFDI registrado</td></tr>';
+    return;
+  }
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td class="al">${fDate(r.fechaPago)}</td>
+    <td class="al" style="font-family:var(--mono);font-size:11px">${r.factura}</td>
+    <td class="al">${r.proveedor}</td>
+    <td>${r.total>0?M(r.total):'—'}</td>
+    <td style="color:var(--green)">${r.importePagado>0?M(r.importePagado):'—'}</td>
+    <td class="al" style="font-family:var(--mono);font-size:10px;color:var(--tx3);max-width:200px;overflow:hidden;text-overflow:ellipsis">${r.refSPEI}</td>
+  </tr>`).join('');
+}
+
+// ── Render Gastos ──
+function renderGastos(rows){
+  const tbody=document.getElementById('gastos-tbody');
+  const ttl=document.getElementById('gastos-ttl');
+  if(rows.length===0){
+    tbody.innerHTML='<tr><td colspan="5" class="no-data">Configura API Key para cargar gastos del GASTOS tab en tiempo real</td></tr>';
+    ttl.textContent='';
+    return;
+  }
+  const total=rows.reduce((a,r)=>a+r.monto,0);
+  ttl.textContent='Total: '+M(total);
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td class="al">${r.desc}</td>
+    <td class="al"><span class="cat ${catCls(r.cat)}">${r.cat||'Otro'}</span></td>
+    <td class="al" style="color:var(--tx3);font-size:11px">${r.freq||'—'}</td>
+    <td class="al" style="font-family:var(--mono);font-size:11px;color:var(--tx3)">${r.iso||'—'}</td>
+    <td>${M(r.monto)}</td>
+  </tr>`).join('');
+}
+
+// Wait for Chart.js (loaded dynamically) then init
+function waitForChartJS(){
+  if(typeof Chart!=='undefined'){
+    loadAll();
+  }else{
+    setTimeout(waitForChartJS,50);
+  }
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',waitForChartJS);
+}else{
+  waitForChartJS();
+}
+
+// Redraw on resize/rotation
+let _rt;
+window.addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{if(window._lastDash)renderCharts(window._lastDash);},250);});
+</script>
+</body>
+</html>  --green:#10b981;--green-bg:rgba(16,185,129,.14);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.14);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.14);
+  --teal:#06b6d4;--teal-bg:rgba(6,182,212,.14);
+  --mint:#34d399;--mint-bg:rgba(52,211,153,.14);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,.14);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --mono:'SF Mono','SFMono-Regular','Consolas','Liberation Mono','Menlo',monospace;
+  --r:10px;--rs:6px;
+  --sh:0 1px 4px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px;min-height:100vh}
+
+.app{max-width:1280px;margin:0 auto;padding:24px 24px 60px}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--bd)}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.logo{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:#fff;flex-shrink:0}
+.h-title{font-size:17px;font-weight:600;letter-spacing:-.2px;color:var(--tx)}
+.h-sub{font-size:11px;color:var(--tx3);margin-top:1px;font-family:var(--mono)}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.btn-ref{background:var(--s2);border:1px solid var(--bd2);color:var(--tx2);padding:6px 14px;border-radius:var(--rs);font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:500;transition:all .15s}
+.btn-ref:hover{background:var(--s3);color:var(--tx)}
+.btn-cfg{background:none;border:none;color:var(--tx3);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:var(--rs);transition:color .15s;line-height:1}
+.btn-cfg:hover{color:var(--tx2)}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx3);font-family:var(--mono);padding:4px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:20px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--tx3);flex-shrink:0}
+.dot.live{background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* API Panel */
+.api-panel{background:var(--blue-bg);border:1px solid rgba(79,135,255,.3);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;display:none;align-items:center;gap:12px;flex-wrap:wrap}
+.api-panel p{font-size:12px;color:#93c5fd;flex:1;min-width:200px;line-height:1.6}
+.api-panel a{color:var(--blue)}
+.api-row{display:flex;gap:8px}
+.api-in{background:var(--s1);border:1px solid rgba(79,135,255,.4);border-radius:var(--rs);padding:6px 12px;color:var(--tx);font-family:var(--mono);font-size:12px;outline:none;width:300px}
+.api-in:focus{border-color:var(--blue)}
+.api-btn{border:none;border-radius:var(--rs);padding:6px 14px;color:#fff;font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer}
+
+/* Error */
+.err{background:var(--red-bg);border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:14px;display:none}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:20px}
+.tab{padding:9px 18px;font-size:13px;font-weight:500;color:var(--tx3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;border-radius:var(--rs) var(--rs) 0 0}
+.tab:hover{color:var(--tx2);background:var(--s2)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.c-blue::before{background:var(--blue)}
+.kpi.c-green::before{background:var(--green)}
+.kpi.c-red::before{background:var(--red)}
+.kpi.c-amber::before{background:var(--amber)}
+.kpi.c-teal::before{background:var(--teal)}
+.kpi-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);margin-bottom:6px}
+.kpi-val{font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1.1}
+.kpi-val.blue{color:var(--blue)}.kpi-val.green{color:var(--green)}.kpi-val.red{color:var(--red)}.kpi-val.amber{color:var(--amber)}.kpi-val.teal{color:var(--teal)}
+.kpi-sub{font-size:10px;color:var(--tx3);margin-top:4px}
+
+/* Section heading */
+.sh{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:10px}
+
+/* Cards */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px}
+.card-hd{padding:16px 18px 0}
+.card-title{font-size:13px;font-weight:600;color:var(--tx)}
+.card-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.card-body{padding:14px 18px 18px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0 8px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
+.leg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.chart-wrap{position:relative;width:100%}
+
+/* Tables */
+.tbl-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:14px}
+.tbl-bar{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:8px 14px;text-align:right;font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);background:var(--s2);border-bottom:1px solid var(--bd);white-space:nowrap}
+thead th:first-child,thead th.al{text-align:left}
+tbody tr{border-bottom:1px solid var(--bd);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody tr.cur{background:var(--blue-bg)}
+td{padding:9px 14px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--tx2);white-space:nowrap}
+td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;color:var(--tx)}
+.pos{color:var(--green);font-weight:500}
+.neg{color:var(--red);font-weight:500}
+.teal-v{color:var(--teal);font-weight:500}
+.teal-n{color:var(--red);font-weight:500}
+
+/* Badges */
+.bdg{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500;font-family:var(--mono);white-space:nowrap}
+.bdg-gray{background:var(--s3);color:var(--tx3);border:1px solid var(--bd)}
+.bdg-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,135,255,.3)}
+.bdg-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.bdg-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.bdg-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+
+/* Category pills */
+.cat{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:500;font-family:var(--mono)}
+.cat-nomina   {background:rgba(167,139,250,.18);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+.cat-importacion{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,135,255,.3)}
+.cat-impuesto {background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.cat-prestamo {background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.cat-credito  {background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.cat-bono     {background:var(--teal-bg);color:var(--teal);border:1px solid rgba(6,182,212,.3)}
+.cat-extra    {background:var(--mint-bg);color:var(--mint);border:1px solid rgba(52,211,153,.3)}
+.cat-otro     {background:var(--s3);color:var(--tx3);border:1px solid var(--bd)}
+
+/* Week calendar strip */
+.week-chip{flex-shrink:0;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);padding:5px 10px;text-align:center;min-width:72px}
+.week-chip.cur{background:var(--blue-bg);border-color:rgba(79,135,255,.35)}
+.week-chip-iso{font-size:10px;font-weight:600;font-family:var(--mono);color:var(--blue);margin-bottom:2px}
+.week-chip.cur .week-chip-iso{color:var(--blue)}
+.week-chip:not(.cur) .week-chip-iso{color:var(--tx3)}
+.week-chip-dates{font-size:9px;color:var(--tx3);font-family:var(--mono);white-space:nowrap}
+
+/* Payroll rows */
+.payroll-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bd);gap:12px}
+.payroll-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1}
+.payroll-name{font-size:13px;font-weight:500;color:var(--tx)}
+.payroll-meta{font-size:11px;color:var(--tx3);width:100%;margin-top:-4px;padding-left:0}
+.payroll-amount{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--tx);white-space:nowrap;text-align:right}
+
+.no-data{padding:28px;text-align:center;color:var(--tx3);font-size:12px}
+
+/* AP week groups */
+.ap-week{margin-bottom:16px}
+.ap-week-hd{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r) var(--r) 0 0;border-bottom:none}
+.ap-week-iso{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--blue)}
+.ap-week-dates{font-size:10px;color:var(--tx3)}
+.ap-week-total{margin-left:auto;font-size:12px;font-weight:600;color:var(--red);font-family:var(--mono)}
+.ap-week-table{background:var(--s1);border:1px solid var(--bd);border-radius:0 0 var(--r) var(--r);overflow:hidden}
+.bdg-proforma{background:rgba(245,158,11,.2);color:var(--amber);border:1px solid rgba(245,158,11,.4);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);font-weight:500}
+.bdg-pendiente{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,135,255,.3);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono)}
+.bdg-na{background:var(--s3);color:var(--tx3);border:1px solid var(--bd);padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono)}
+/* ── Mobile responsive (≤768px) ── */
+@media(max-width:768px){
+  .app{padding:16px 14px 80px}
+
+  /* Header */
+  .hdr{margin-bottom:16px;padding-bottom:14px;flex-wrap:wrap;gap:10px}
+  .h-title{font-size:15px}
+  .h-sub{font-size:10px}
+  .live-badge span:last-child{display:none} /* hide "live · Google Sheets" text, keep dot */
+  .btn-ref span{display:none} /* hide "Actualizar" text, keep icon */
+  .btn-ref{padding:6px 10px}
+
+  /* Tabs — scrollable horizontal strip */
+  .tabs{gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;margin-bottom:14px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:8px 14px;font-size:12px;white-space:nowrap;flex-shrink:0}
+
+  /* KPIs — 2 column grid */
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .kpi-grid .kpi:last-child{grid-column:1/-1} /* Posición Neta spans full width */
+  .kpi-val{font-size:18px}
+  .kpi-lbl{font-size:9px}
+
+  /* Charts — shorter on mobile */
+  .card-body{padding:10px 12px 14px}
+  .card-hd{padding:12px 12px 0}
+  #saldoChart{height:180px!important}
+  #flowChart{height:200px!important}
+  .chart-wrap[style*="240px"]{height:180px!important}
+  .chart-wrap[style*="280px"]{height:200px!important}
+
+  /* Section heading */
+  .sh{font-size:9px;margin-bottom:8px}
+
+  /* Tables — horizontal scroll */
+  .tbl-wrap,
+  .ap-week-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:500px}
+  td,thead th{padding:7px 10px;font-size:11px}
+
+  /* AP/AR week headers */
+  .ap-week-hd{padding:8px 12px}
+  .ap-week-iso{font-size:12px}
+  .ap-week-dates{font-size:10px}
+  .ap-week-total{font-size:12px}
+
+  /* Gastos */
+  .kpi.c-blue,.kpi.c-green,.kpi.c-red,.kpi.c-amber,.kpi.c-teal{padding:12px}
+
+  /* Alerts */
+  .alerts-card,.summary-card{padding:0}
+  .alert-item{padding:10px 14px}
+}
+
+/* ── PWA: safe area for iPhone notch/home bar ── */
+@supports(padding:max(0px)){
+  .app{
+    padding-left:max(14px,env(safe-area-inset-left));
+    padding-right:max(14px,env(safe-area-inset-right));
+    padding-bottom:max(80px,env(safe-area-inset-bottom));
+  }
+}
+</style>
+
+<!-- PWA manifest inline -->
+<script>
+const _manifest={
+  name:'Panorama F&S Dashboard',
+  short_name:'Panorama',
+  description:'Dashboard financiero — Flujo de caja 12 semanas',
+  start_url:'./',
+  display:'standalone',
+  background_color:'#0b1120',
+  theme_color:'#4f87ff',
+  orientation:'portrait-primary',
+  icons:[
+    {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%234f87ff'/%3E%3Ctext x='96' y='136' font-family='Arial' font-weight='700' font-size='110' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E",
+     sizes:'192x192',type:'image/svg+xml'},
+    {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%234f87ff'/%3E%3Ctext x='256' y='360' font-family='Arial' font-weight='700' font-size='300' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E",
+     sizes:'512x512',type:'image/svg+xml'},
+  ]
+};
+const _blob=new Blob([JSON.stringify(_manifest)],{type:'application/manifest+json'});
+const _url=URL.createObjectURL(_blob);
+const _link=document.createElement('link');
+_link.rel='manifest';_link.href=_url;
+document.head.appendChild(_link);
+</script>
+
+<!-- iPhone PWA meta tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Panorama">
+<meta name="theme-color" content="#4f87ff">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%234f87ff'/%3E%3Ctext x='90' y='128' font-family='Arial' font-weight='700' font-size='104' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="logo">P</div>
+    <div>
+      <div class="h-title">Panorama F&S — Dashboard</div>
+      <div class="h-sub" id="last-ts">cargando...</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div class="live-badge"><span class="dot" id="sdot"></span><span id="stxt">estático</span></div>
+    <button class="btn-cfg" onclick="toggleApi()" title="API Key">⚙</button>
+    <button class="btn-ref" onclick="loadAll()">↺ Actualizar</button>
+  </div>
+</div>
+
+<!-- API Panel -->
+<div class="api-panel" id="api-panel">
+  <p><strong>Google Sheets API Key</strong> — ambos sheets deben ser públicos de lectura.<br>
+  <a href="#" onclick="showHelp();return false">¿Cómo configurar?</a></p>
+  <div class="api-row">
+    <input class="api-in" id="apiKey" type="password" placeholder="AIzaSy..."/>
+    <button class="api-btn" style="background:var(--blue)" onclick="saveKey()">Guardar</button>
+    <button class="api-btn" style="background:var(--tx3)" onclick="clearKey()">Borrar</button>
+  </div>
+</div>
+
+<div class="err" id="err"></div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('flujo',this)">Flujo de Caja</button>
+  <button class="tab" onclick="switchTab('ar',this)">Cuentas por Cobrar</button>
+  <button class="tab" onclick="switchTab('ap',this)">Cuentas por Pagar</button>
+  <button class="tab" onclick="switchTab('cfdi',this)">Pendientes de CFDI</button>
+  <button class="tab" onclick="switchTab('gastos',this)">Gastos</button>
+</div>
+
+<!-- ═══ FLUJO ═══ -->
+<div class="tab-panel active" id="tab-flujo">
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
   <p class="sh">Saldo Proyectado — 12 semanas</p>
   <div class="card">
     <div class="card-hd">
