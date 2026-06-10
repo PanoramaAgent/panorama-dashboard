@@ -860,6 +860,7 @@ async function loadAll(){
       'DATA_AR!L3:L501',        // [6] AR Semana ISO
       'DATA_AP!A3:S501',        // [7] AP source data
       'DATA_AP!X3:X501',        // [8] AP Semana ISO
+      'WEEKLY_SUMMARY!D2',      // [9] fecha última actualización saldo (escrita por onEdit)
     ],key);
 
     // ── Weekly summary + KPIs ──
@@ -873,7 +874,8 @@ async function loadAll(){
     }));
     const kv=(vr[2].values||[]).map(r=>pMXN(r[0]));
     const kpis={ar:kv[0]||0,ap:kv[1]||0,gastos:kv[2]||0,cred:kv[3]||0,neta:kv[4]||0,flags:kv[5]||0};
-    dashData={saldo,weeks,kpis};
+    const saldoFecha=(vr[9]&&vr[9].values&&vr[9].values[0]&&vr[9].values[0][0])?String(vr[9].values[0][0]).trim():'';
+    dashData={saldo,weeks,kpis,saldoFecha};
 
     // ── Payroll config ──
     const payCfg=vr[4].values||[];
@@ -1003,7 +1005,7 @@ function lastFridayStr(){
 }
 function renderKPIs(d){
   const cfg=[
-    {lbl:'Saldo Bancario', val:d.saldo,       cls:'c-blue',   sub:lastFridayStr(),               tab:'flujo'},
+    {lbl:'Saldo Bancario', val:d.saldo,       cls:'c-blue',   sub:d.saldoFecha?('Al '+d.saldoFecha):lastFridayStr(), tab:'flujo'},
     {lbl:'AR',             val:d.kpis.ar,     cls:'c-green',  sub:'por cobrar',                  tab:'ar'},
     {lbl:'AP',             val:d.kpis.ap,     cls:'c-red',    sub:'por pagar',                   tab:'ap'},
     {lbl:'Gastos Fijos 12s',val:d.kpis.gastos,cls:'c-amber',  sub:'nómina + operativo + import', tab:'gastos'},
