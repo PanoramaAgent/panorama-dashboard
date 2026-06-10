@@ -134,22 +134,9 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 }
 .kpi::before{
   content:'';position:absolute;inset:0;
-  /* Diagonal light sheen */
-  background:linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 40%);
+  /* Soft light sheen */
+  background:linear-gradient(135deg,rgba(255,255,255,.10) 0%,transparent 45%);
   pointer-events:none;z-index:0;
-}
-.kpi::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:45%;
-  background:linear-gradient(to top,rgba(0,0,0,.26),transparent);
-  pointer-events:none;z-index:0;
-}
-/* Subtle dot-grid pattern overlay */
-.kpi .kpi-pattern{
-  position:absolute;inset:0;z-index:0;pointer-events:none;
-  background-image:radial-gradient(circle,rgba(255,255,255,.13) 1px,transparent 1px);
-  background-size:14px 14px;
-  -webkit-mask-image:linear-gradient(135deg,transparent 30%,rgba(0,0,0,.5) 100%);
-  mask-image:linear-gradient(135deg,transparent 30%,rgba(0,0,0,.5) 100%);
 }
 .kpi-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:rgba(255,255,255,.82);margin-bottom:7px;position:relative;z-index:1}
 .kpi-val{font-size:23px;font-weight:700;letter-spacing:-.6px;line-height:1.1;color:#fff;position:relative;z-index:1;font-variant-numeric:tabular-nums}
@@ -160,12 +147,12 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .kpi[onclick]:hover{transform:translateY(-2px);box-shadow:0 2px 6px rgba(0,0,0,.2),0 12px 28px rgba(0,0,0,.30)}
 .kpi[onclick]:active{transform:translateY(0) scale(.99)}
 
-/* Stronger deep gradients */
-.kpi.c-blue  {background:linear-gradient(150deg,#172554 0%,#1d4ed8 60%,#3b82f6 100%)}
-.kpi.c-green {background:linear-gradient(150deg,#052e16 0%,#15803d 60%,#22c55e 100%)}
-.kpi.c-red   {background:linear-gradient(150deg,#450a0a 0%,#b91c1c 60%,#ef4444 100%)}
-.kpi.c-amber {background:linear-gradient(150deg,#431407 0%,#c2410c 60%,#f97316 100%)}
-.kpi.c-purple{background:linear-gradient(150deg,#2e1065 0%,#7e22ce 60%,#a855f7 100%)}
+/* Sober calm gradients */
+.kpi.c-blue  {background:linear-gradient(150deg,#3d5fc4 0%,#6285e3 100%)}
+.kpi.c-green {background:linear-gradient(150deg,#2f8f5b 0%,#55b984 100%)}
+.kpi.c-red   {background:linear-gradient(150deg,#b94a4a 0%,#d97777 100%)}
+.kpi.c-amber {background:linear-gradient(150deg,#e09a3e 0%,#f0bc6b 100%)}
+.kpi.c-purple{background:linear-gradient(150deg,#7558bf 0%,#9d82dd 100%)}
 
 /* Section heading */
 .sh{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:10px}
@@ -329,7 +316,7 @@ td:first-child,td.al{text-align:left;font-family:var(--font);font-size:12px;colo
   .ap-week-total{font-size:12px}
 
   /* Gastos */
-  .kpi.c-blue,.kpi.c-green,.kpi.c-red,.kpi.c-amber,.kpi.c-teal{padding:12px}
+  .kpi.c-blue,.kpi.c-green,.kpi.c-red,.kpi.c-amber,.kpi.c-purple{padding:12px}
 
   /* Alerts */
   .alerts-card,.summary-card{padding:0}
@@ -402,7 +389,7 @@ document.head.appendChild(_link);
           <!-- moon icon (dark mode) -->
           <svg id="icon-moon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#1e3a5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
           <!-- sun icon (light mode) -->
-          <svg id="icon-sun" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg id="icon-sun" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#1e3a5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </div>
       </div>
     </label>
@@ -696,7 +683,7 @@ function renderCharts(d){
       pointBorderColor:isLight?'#ffffff':'#0b1120',
       pointBorderWidth:2,
       pointRadius:5.5,pointHoverRadius:8,pointHoverBorderWidth:3,
-      borderWidth:3,fill:true,tension:0.4
+      borderWidth:2,fill:true,tension:0.4
     }]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' Saldo: '+tf(c.raw)+(c.raw<THRESHOLD&&c.raw>=0?'  ⚠ bajo umbral':'')}}},
@@ -734,10 +721,12 @@ function renderCharts(d){
           ctx.lineTo(chartArea.right,tY);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle='rgba(245,158,11,.9)';
-          ctx.font='600 9px -apple-system,sans-serif';
-          ctx.textAlign='right';
-          ctx.fillText('umbral $500k',chartArea.right-4,tY-5);
+          if(window.innerWidth>768){
+            ctx.fillStyle='rgba(245,158,11,.9)';
+            ctx.font='600 9px -apple-system,sans-serif';
+            ctx.textAlign='right';
+            ctx.fillText('umbral $500k',chartArea.right-4,tY-5);
+          }
           ctx.restore();
         }
       }
@@ -1001,18 +990,28 @@ function countUp(el,target,fmt){
   requestAnimationFrame(frame);
 }
 
+function lastFridayStr(){
+  const now=new Date();
+  const d=new Date(now);
+  const dow=d.getDay(); // 0=Sun..5=Fri,6=Sat
+  const diff=(dow+2)%7; // days since most recent Friday
+  d.setDate(d.getDate()-diff);
+  const dd=String(d.getDate()).padStart(2,'0');
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const yy=String(d.getFullYear()).slice(-2);
+  return `Al ${dd}/${mm}/${yy}`;
+}
 function renderKPIs(d){
   const cfg=[
-    {lbl:'Saldo Bancario',    val:d.saldo,       cls:'c-blue',   sub:'actualizar cada viernes', tab:'flujo'},
-    {lbl:'Por Cobrar AR',     val:d.kpis.ar,     cls:'c-green',  sub:'12 semanas abiertas',     tab:'ar'},
-    {lbl:'AP Pendiente',      val:d.kpis.ap,     cls:'c-red',    sub:'por pagar',               tab:'ap'},
-    {lbl:'Gastos Fijos 12s',  val:d.kpis.gastos, cls:'c-amber',  sub:'nómina + operativos',     tab:'gastos'},
-    {lbl:'Posición Neta Real', val:d.kpis.neta,  cls:'c-purple', sub:'AR – AP – Gastos',        tab:null},
+    {lbl:'Saldo Bancario', val:d.saldo,       cls:'c-blue',   sub:lastFridayStr(),               tab:'flujo'},
+    {lbl:'AR',             val:d.kpis.ar,     cls:'c-green',  sub:'por cobrar',                  tab:'ar'},
+    {lbl:'AP',             val:d.kpis.ap,     cls:'c-red',    sub:'por pagar',                   tab:'ap'},
+    {lbl:'Gastos Fijos 12s',val:d.kpis.gastos,cls:'c-amber',  sub:'nómina + operativo + import', tab:'gastos'},
+    {lbl:'Posición Neta',  val:d.kpis.neta,   cls:'c-purple', sub:'AR – AP – Gastos',            tab:null},
   ];
   document.getElementById('kpi-grid').innerHTML=cfg.map((k,i)=>{
     const clickable=k.tab?`onclick="goTab('${k.tab}')" style="cursor:pointer" title="Ver ${k.lbl}"`:'';
     return `<div class="kpi ${k.cls}" ${clickable}>
-      <div class="kpi-pattern"></div>
       <div class="kpi-lbl">${k.lbl}</div>
       <div class="kpi-val" id="kpi-v-${i}">$0</div>
       <div class="kpi-sub">${k.sub}</div>
@@ -1040,99 +1039,90 @@ function exportCard(cardId,filename){
   const now=new Date();
   const dStr=now.getDate()+'/'+(now.getMonth()+1)+'/'+now.getFullYear();
 
-  // Layout constants
-  const W=Math.max(canvas.width,900);
-  const pad=32;
-  const kpiH=90, kpiGap=12;
+  // ── Layout in CSS pixels, render at device-pixel scale ──
+  const cssW=canvas.offsetWidth||canvas.width;
+  const cssH=canvas.offsetHeight||canvas.height;
+  const s=Math.max(2,(canvas.width/cssW)||2); // retina scale (min 2x for crispness)
+
+  const pad=28;
+  const W=cssW+pad*2;
+  const headerH=64;
+  const kpiH=78, kpiGap=10;
   const kpis=[
-    {lbl:'Saldo Bancario',    val:d.saldo,       colors:['#172554','#1d4ed8','#3b82f6']},
-    {lbl:'Por Cobrar AR',     val:d.kpis.ar,     colors:['#052e16','#15803d','#22c55e']},
-    {lbl:'AP Pendiente',      val:d.kpis.ap,     colors:['#450a0a','#b91c1c','#ef4444']},
-    {lbl:'Gastos Fijos 12s',  val:d.kpis.gastos, colors:['#431407','#c2410c','#f97316']},
-    {lbl:'Posición Neta Real', val:d.kpis.neta,  colors:['#2e1065','#7e22ce','#a855f7']},
+    {lbl:'SALDO BANCARIO', val:d.saldo,       colors:['#3d5fc4','#6285e3']},
+    {lbl:'AR',             val:d.kpis.ar,     colors:['#2f8f5b','#55b984']},
+    {lbl:'AP',             val:d.kpis.ap,     colors:['#b94a4a','#d97777']},
+    {lbl:'GASTOS FIJOS 12S',val:d.kpis.gastos,colors:['#e09a3e','#f0bc6b']},
+    {lbl:'POSICIÓN NETA',  val:d.kpis.neta,   colors:['#7558bf','#9d82dd']},
   ];
   const kpiW=Math.floor((W-pad*2-kpiGap*4)/5);
-  const headerH=68, kpiSectionH=kpiH+20, chartH=canvas.height, footerH=32;
-  const H=pad+headerH+kpiSectionH+chartH+footerH+pad;
+  const kpiSectionH=kpiH+18;
+  const footerH=30;
+  const H=pad+headerH+kpiSectionH+cssH+footerH+pad;
 
   const out=document.createElement('canvas');
-  out.width=W; out.height=H;
-  const c=out.getContext('2d');
+  out.width=Math.round(W*s);
+  out.height=Math.round(H*s);
+  const c2=out.getContext('2d');
+  c2.scale(s,s);
 
   // Background
-  c.fillStyle=isLight?'#f0f4f8':'#0b1120';
-  c.fillRect(0,0,W,H);
+  c2.fillStyle=isLight?'#f0f4f8':'#0b1120';
+  c2.fillRect(0,0,W,H);
 
   // Header
-  c.fillStyle=isLight?'#0f172a':'#e8edf5';
-  c.font='700 24px -apple-system,Segoe UI,sans-serif';
-  c.fillText('Panorama F&S — Dashboard Financiero',pad,pad+28);
-  c.fillStyle=isLight?'#64748b':'#94a3b8';
-  c.font='13px -apple-system,Segoe UI,sans-serif';
-  c.fillText('Generado '+dStr+' · Flujo proyectado 12 semanas',pad,pad+50);
+  c2.fillStyle=isLight?'#0f172a':'#e8edf5';
+  c2.font='700 22px -apple-system,Segoe UI,sans-serif';
+  c2.fillText('Panorama F&S — Dashboard Financiero',pad,pad+24);
+  c2.fillStyle=isLight?'#64748b':'#94a3b8';
+  c2.font='12px -apple-system,Segoe UI,sans-serif';
+  c2.fillText('Generado '+dStr+' · Flujo proyectado 12 semanas',pad,pad+44);
 
   // KPI boxes
   const kpiY=pad+headerH;
+  const rr=(x,y,w,h,r)=>{
+    c2.beginPath();
+    c2.moveTo(x+r,y);c2.lineTo(x+w-r,y);c2.quadraticCurveTo(x+w,y,x+w,y+r);
+    c2.lineTo(x+w,y+h-r);c2.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    c2.lineTo(x+r,y+h);c2.quadraticCurveTo(x,y+h,x,y+h-r);
+    c2.lineTo(x,y+r);c2.quadraticCurveTo(x,y,x+r,y);
+    c2.closePath();
+  };
   kpis.forEach((k,i)=>{
     const x=pad+i*(kpiW+kpiGap);
-    // Gradient fill
-    const grad=c.createLinearGradient(x,kpiY,x+kpiW,kpiY+kpiH);
+    const grad=c2.createLinearGradient(x,kpiY,x+kpiW,kpiY+kpiH);
     grad.addColorStop(0,k.colors[0]);
-    grad.addColorStop(0.6,k.colors[1]);
-    grad.addColorStop(1,k.colors[2]);
-    // Rounded rect
-    const r=10;
-    c.beginPath();
-    c.moveTo(x+r,kpiY);c.lineTo(x+kpiW-r,kpiY);c.quadraticCurveTo(x+kpiW,kpiY,x+kpiW,kpiY+r);
-    c.lineTo(x+kpiW,kpiY+kpiH-r);c.quadraticCurveTo(x+kpiW,kpiY+kpiH,x+kpiW-r,kpiY+kpiH);
-    c.lineTo(x+r,kpiY+kpiH);c.quadraticCurveTo(x,kpiY+kpiH,x,kpiY+kpiH-r);
-    c.lineTo(x,kpiY+r);c.quadraticCurveTo(x,kpiY,x+r,kpiY);
-    c.closePath();
-    c.fillStyle=grad;c.fill();
-    // Dot pattern
-    c.save();c.clip();
-    for(let dx=x;dx<x+kpiW;dx+=14){
-      for(let dy=kpiY;dy<kpiY+kpiH;dy+=14){
-        const distFrac=((dx-x)/kpiW+(dy-kpiY)/kpiH)/2;
-        if(distFrac>0.35){
-          c.beginPath();c.arc(dx,dy,1,0,Math.PI*2);
-          c.fillStyle=`rgba(255,255,255,${(distFrac-0.35)*0.28})`;c.fill();
-        }
-      }
-    }
-    // Bottom shadow
-    const shadowG=c.createLinearGradient(x,kpiY+kpiH*0.6,x,kpiY+kpiH);
-    shadowG.addColorStop(0,'transparent');shadowG.addColorStop(1,'rgba(0,0,0,.22)');
-    c.fillStyle=shadowG;c.fillRect(x,kpiY+kpiH*0.6,kpiW,kpiH*0.4);
-    c.restore();
-    // Text
-    c.fillStyle='rgba(255,255,255,.80)';
-    c.font='600 9px -apple-system,Segoe UI,sans-serif';
-    c.fillText(k.lbl.toUpperCase(),x+12,kpiY+22);
-    c.fillStyle='#ffffff';
-    c.font='700 18px -apple-system,Segoe UI,sans-serif';
-    c.fillText(M(k.val),x+12,kpiY+52);
+    grad.addColorStop(1,k.colors[1]);
+    rr(x,kpiY,kpiW,kpiH,9);
+    c2.fillStyle=grad;c2.fill();
+    // soft sheen
+    c2.save();c2.clip();
+    const sheen=c2.createLinearGradient(x,kpiY,x+kpiW*0.7,kpiY+kpiH);
+    sheen.addColorStop(0,'rgba(255,255,255,.10)');sheen.addColorStop(1,'rgba(255,255,255,0)');
+    c2.fillStyle=sheen;c2.fillRect(x,kpiY,kpiW,kpiH);
+    c2.restore();
+    // text
+    c2.fillStyle='rgba(255,255,255,.85)';
+    c2.font='600 8.5px -apple-system,Segoe UI,sans-serif';
+    c2.fillText(k.lbl,x+11,kpiY+19);
+    c2.fillStyle='#ffffff';
+    c2.font='700 17px -apple-system,Segoe UI,sans-serif';
+    c2.fillText(M(k.val),x+11,kpiY+46);
   });
 
-  // Chart
+  // Chart card
   const chartY=kpiY+kpiSectionH;
-  // Card bg behind chart
-  const cardR=10;
-  c.fillStyle=isLight?'#ffffff':'#111827';
-  c.beginPath();
-  c.moveTo(pad+cardR,chartY);c.lineTo(W-pad-cardR,chartY);
-  c.quadraticCurveTo(W-pad,chartY,W-pad,chartY+cardR);
-  c.lineTo(W-pad,chartY+chartH-cardR);c.quadraticCurveTo(W-pad,chartY+chartH,W-pad-cardR,chartY+chartH);
-  c.lineTo(pad+cardR,chartY+chartH);c.quadraticCurveTo(pad,chartY+chartH,pad,chartY+chartH-cardR);
-  c.lineTo(pad,chartY+cardR);c.quadraticCurveTo(pad,chartY,pad+cardR,chartY);
-  c.closePath();c.fill();
-  c.drawImage(canvas,pad,chartY);
+  rr(pad,chartY,cssW,cssH,10);
+  c2.fillStyle=isLight?'#ffffff':'#111827';
+  c2.fill();
+  c2.drawImage(canvas,pad,chartY,cssW,cssH);
 
   // Footer
-  c.fillStyle=isLight?'#94a3b8':'#64748b';
-  c.font='11px -apple-system,Segoe UI,sans-serif';
-  c.textAlign='right';
-  c.fillText('panoramaagent.github.io/panorama-dashboard',W-pad,H-pad+16);
+  c2.fillStyle=isLight?'#94a3b8':'#64748b';
+  c2.font='10px -apple-system,Segoe UI,sans-serif';
+  c2.textAlign='right';
+  c2.fillText('panoramaagent.github.io/panorama-dashboard',W-pad,H-pad+12);
+  c2.textAlign='left';
 
   // Download
   out.toBlob(blob=>{
