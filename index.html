@@ -200,11 +200,6 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .leg.click{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;padding:2px 6px;margin:-2px -6px;border-radius:5px;transition:opacity .15s,background .15s}
 .leg.click:hover{background:var(--s2)}
 .leg.click.off{opacity:.4;text-decoration:line-through}
-.need-line{margin-top:12px;padding:10px 14px;border-radius:var(--rs);font-size:12px;line-height:1.55;color:var(--tx2);border:1px solid var(--bd);border-left:3px solid var(--tx3);background:var(--s2)}
-.need-line b{color:var(--tx);font-weight:600}
-.need-line.bad{border-left-color:#dc2626;background:rgba(220,38,38,.06)}
-.need-line.warn{border-left-color:#f59e0b;background:rgba(245,158,11,.07)}
-.need-line.ok{border-left-color:#10b981;background:rgba(16,185,129,.06)}
 .kpi-sub2{font-size:10px;color:rgba(255,255,255,.62);margin-top:1px;position:relative;z-index:1}
 .kpi-sub b,.kpi-sub2 b{color:#fff;font-weight:600}
 .kpi-risk{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;background:rgba(127,29,29,.75);color:#fff;font-size:9px;letter-spacing:.4px;vertical-align:1px}
@@ -462,7 +457,6 @@ document.head.appendChild(_link);
         <span class="leg"><span class="leg-sq" style="background:#ef4444"></span>Saldo negativo</span>
       </div>
       <div class="chart-wrap" style="height:240px"><canvas id="saldoChart" role="img" aria-label="Saldo proyectado por semana: confirmado y con proformas"></canvas></div>
-      <div class="need-line" id="need-line"></div>
     </div>
   </div>
 
@@ -649,25 +643,6 @@ function getPro(d){
   return{total:0,week:z,cumW:z,spReal:d.weeks.map(w=>w.sp),inWindow:0,minReal:0,minPro:0,need0:0,need0Week:'',need500:0,need500Week:''};
 }
 function shortW(iso){return String(iso||'').replace(/\d{4}-/,'');}
-function needMessage(d){
-  const P=getPro(d);
-  const proNote=P.inWindow>0
-    ?` Las proformas dentro de la ventana suman <b>${M(P.inWindow)}</b>; si se confirman todas, el saldo mínimo sería <b>${M(P.minPro)}</b>.`
-    :' No hay proformas dentro de la ventana de 12 semanas.';
-  if(P.need0>0){
-    return{lvl:'bad',html:`<b>¿Qué necesitas?</b> Con solo OCs confirmadas el saldo cae a <b>${M(P.minReal)}</b>. Para mantener saldo ≥ $0 necesitas <b>${M(P.need0)}</b> adicionales confirmados antes de <b>${shortW(P.need0Week)}</b> · <b>${M(P.need500)}</b> para mantener el umbral de $500k.`+proNote};
-  }
-  if(P.need500>0){
-    return{lvl:'warn',html:`<b>¿Qué necesitas?</b> El saldo confirmado se mantiene positivo, pero baja a <b>${M(P.minReal)}</b>. Para mantener el umbral de $500k necesitas <b>${M(P.need500)}</b> adicionales confirmados antes de <b>${shortW(P.need500Week)}</b>.`+proNote};
-  }
-  return{lvl:'ok',html:`<b>¿Qué necesitas?</b> Con solo OCs confirmadas el saldo se mantiene sobre $500k las 12 semanas (mínimo <b>${M(P.minReal)}</b>).`+proNote};
-}
-function renderNeed(d){
-  const el=document.getElementById('need-line'); if(!el)return;
-  const m=needMessage(d);
-  el.className='need-line '+m.lvl;
-  el.innerHTML=m.html;
-}
 function toggleProLayer(el){
   if(!saldoCh)return;
   const idx=saldoCh.data.datasets.findIndex(ds=>ds._pro);
@@ -1081,7 +1056,7 @@ async function loadAll(){
 // ── Render Flujo ──
 function renderFlujo(d){window._lastDash=d;
   const tr=document.getElementById('tbl-range');
-  if(tr&&d.weeks.length)tr.textContent='Semanas '+shortW(d.weeks[0].iso)+' – '+shortW(d.weeks[d.weeks.length-1].iso);renderKPIs(d);renderCharts(d);renderNeed(d);renderTable(d);}
+  if(tr&&d.weeks.length)tr.textContent='Semanas '+shortW(d.weeks[0].iso)+' – '+shortW(d.weeks[d.weeks.length-1].iso);renderKPIs(d);renderCharts(d);renderTable(d);}
 
 // Animated count-up for KPI values
 function countUp(el,target,fmt){
@@ -1166,18 +1141,12 @@ function exportCard(cardId,filename){
     {lbl:'GASTOS FIJOS 12S',val:d.kpis.gastos,       sub:'nómina + operativo + import',                      colors:['#e09a3e','#f0bc6b']},
     {lbl:'POSICIÓN NETA',  val:d.kpis.neta-P.total,  sub:P.total>0?('con proforma: '+M(d.kpis.neta)):'AR – AP – Gastos', colors:['#7558bf','#9d82dd']},
   ];
-  // "¿Qué necesitas?" en texto plano para el PNG
-  const needTxt=needMessage(d).html.replace(/<[^>]+>/g,'');
+
   const kpiW=Math.floor((W-pad*2-kpiGap*4)/5);
   const kpiSectionH=kpiH+18;
   const footerH=30;
-  // medir líneas del mensaje para reservar espacio
-  const mctx=document.createElement('canvas').getContext('2d');
-  mctx.font='12px -apple-system,Segoe UI,sans-serif';
-  const wrap=(ctx,txt,maxW)=>{const words=txt.split(' ');const lines=[];let ln='';words.forEach(wd=>{const t=ln?ln+' '+wd:wd;if(ctx.measureText(t).width>maxW&&ln){lines.push(ln);ln=wd;}else ln=t;});if(ln)lines.push(ln);return lines;};
-  const needLines=wrap(mctx,needTxt,cssW-28);
-  const needH=needLines.length*17+22;
-  const H=pad+headerH+kpiSectionH+cssH+14+needH+footerH+pad;
+
+  const H=pad+headerH+kpiSectionH+cssH+footerH+pad;
 
   const out=document.createElement('canvas');
   out.width=Math.round(W*s);
@@ -1261,19 +1230,6 @@ function exportCard(cardId,filename){
     c2.save();c2.strokeStyle=isLight?'#2563eb':'#4f87ff';c2.lineWidth=2;
     c2.beginPath();c2.moveTo(x1-w1-26,ly-4);c2.lineTo(x1-w1-6,ly-4);c2.stroke();c2.restore();
     c2.textAlign='left';
-  }
-
-  // "¿Qué necesitas?"
-  {
-    const ny=chartY+cssH+14;
-    const lvl=needMessage(d).lvl;
-    const accent=lvl==='bad'?'#dc2626':(lvl==='warn'?'#f59e0b':'#10b981');
-    rr(pad,ny,cssW,needH,8);
-    c2.fillStyle=isLight?'#ffffff':'#111827';c2.fill();
-    c2.fillStyle=accent;c2.fillRect(pad,ny+4,3,needH-8);
-    c2.fillStyle=isLight?'#334155':'#cbd5e1';
-    c2.font='12px -apple-system,Segoe UI,sans-serif';
-    needLines.forEach((ln,i)=>c2.fillText(ln,pad+16,ny+19+i*17));
   }
 
   // Footer
