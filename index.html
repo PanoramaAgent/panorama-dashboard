@@ -192,6 +192,22 @@ body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px
 .card-sub{font-size:11px;color:var(--tx3);margin-top:2px}
 .card-body{padding:14px 18px 18px}
 .legend{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0 8px}
+.leg-line{width:16px;height:0;border-top:2px dashed #a78bfa;flex-shrink:0}
+.light .leg-line{border-top-color:#7c3aed}
+.leg-solid{width:16px;height:0;border-top:2px solid #4f87ff;flex-shrink:0}
+.light .leg-solid{border-top-color:#2563eb}
+.leg-pro-sq{background:rgba(16,185,129,.22);border:1.5px solid rgba(16,185,129,.85)}
+.leg.click{cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;padding:2px 6px;margin:-2px -6px;border-radius:5px;transition:opacity .15s,background .15s}
+.leg.click:hover{background:var(--s2)}
+.leg.click.off{opacity:.4;text-decoration:line-through}
+.need-line{margin-top:12px;padding:10px 14px;border-radius:var(--rs);font-size:12px;line-height:1.55;color:var(--tx2);border:1px solid var(--bd);border-left:3px solid var(--tx3);background:var(--s2)}
+.need-line b{color:var(--tx);font-weight:600}
+.need-line.bad{border-left-color:#dc2626;background:rgba(220,38,38,.06)}
+.need-line.warn{border-left-color:#f59e0b;background:rgba(245,158,11,.07)}
+.need-line.ok{border-left-color:#10b981;background:rgba(16,185,129,.06)}
+.kpi-sub2{font-size:10px;color:rgba(255,255,255,.62);margin-top:1px;position:relative;z-index:1}
+.kpi-sub b,.kpi-sub2 b{color:#fff;font-weight:600}
+.kpi-risk{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;background:rgba(127,29,29,.75);color:#fff;font-size:9px;letter-spacing:.4px;vertical-align:1px}
 .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
 .leg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
 .chart-wrap{position:relative;width:100%}
@@ -441,10 +457,12 @@ document.head.appendChild(_link);
     </div>
     <div class="card-body">
       <div class="legend">
-        <span class="leg"><span class="leg-sq" style="background:#4f87ff"></span>Saldo positivo</span>
+        <span class="leg"><span class="leg-solid"></span>Confirmado (OCs reales)</span>
+        <span class="leg click" id="leg-pro" onclick="toggleProLayer(this)" title="Mostrar / ocultar proformas"><span class="leg-line"></span>+ Proforma</span>
         <span class="leg"><span class="leg-sq" style="background:#ef4444"></span>Saldo negativo</span>
       </div>
-      <div class="chart-wrap" style="height:240px"><canvas id="saldoChart" role="img" aria-label="Área saldo proyectado por semana"></canvas></div>
+      <div class="chart-wrap" style="height:240px"><canvas id="saldoChart" role="img" aria-label="Saldo proyectado por semana: confirmado y con proformas"></canvas></div>
+      <div class="need-line" id="need-line"></div>
     </div>
   </div>
 
@@ -456,7 +474,8 @@ document.head.appendChild(_link);
     </div>
     <div class="card-body">
       <div class="legend">
-        <span class="leg"><span class="leg-sq" style="background:#10b981"></span>AR Cobro</span>
+        <span class="leg"><span class="leg-sq" style="background:#10b981"></span>AR confirmado</span>
+        <span class="leg"><span class="leg-sq leg-pro-sq"></span>AR proforma</span>
         <span class="leg"><span class="leg-sq" style="background:#4f87ff"></span>Crédito</span>
         <span class="leg"><span class="leg-sq" style="background:#ef4444"></span>AP Pendiente</span>
         <span class="leg"><span class="leg-sq" style="background:#f59e0b"></span>Gastos</span>
@@ -469,7 +488,7 @@ document.head.appendChild(_link);
   <p class="sh">Detalle semanal</p>
   <div class="tbl-wrap">
     <div class="tbl-bar">
-      <span style="font-size:12px;font-weight:500;color:var(--tx2)">Semanas W20 – W31</span>
+      <span style="font-size:12px;font-weight:500;color:var(--tx2)" id="tbl-range">Semanas</span>
       <span style="font-size:10px;color:var(--tx3);font-family:var(--mono)">MXN pesos</span>
     </div>
     <div style="overflow-x:auto">
@@ -599,6 +618,66 @@ const STATIC_CFDI=[
 
 let flowCh=null,saldoCh=null;
 
+// ── Proformas: separa AR confirmado vs proyectado ──
+const PRO_THRESHOLD=500000;
+function buildPro(d,rows){
+  const byIso={}; let total=0;
+  (rows||[]).forEach(r=>{
+    if(!r.isProforma||r.flagged)return;   // FLAG excluido, igual que KPIs del sheet
+    total+=r.total;
+    if(r.iso)byIso[r.iso]=(byIso[r.iso]||0)+r.total;
+  });
+  let cum=0;
+  const week=[],cumW=[],spReal=[];
+  d.weeks.forEach(w=>{
+    const p=byIso[w.iso]||0; cum+=p;
+    week.push(p); cumW.push(cum); spReal.push(w.sp-cum);
+  });
+  const minReal=spReal.length?Math.min(...spReal):0;
+  const minPro=d.weeks.length?Math.min(...d.weeks.map(w=>w.sp)):0;
+  const firstIdx=lim=>spReal.findIndex(v=>v<lim);
+  const i0=firstIdx(0), i5=firstIdx(PRO_THRESHOLD);
+  return{
+    total, week, cumW, spReal, inWindow:cum, minReal, minPro,
+    need0:minReal<0?-minReal:0, need0Week:i0>=0?d.weeks[i0].iso:'',
+    need500:minReal<PRO_THRESHOLD?PRO_THRESHOLD-minReal:0, need500Week:i5>=0?d.weeks[i5].iso:''
+  };
+}
+function getPro(d){
+  if(d.pro)return d.pro;
+  const z=d.weeks.map(()=>0);
+  return{total:0,week:z,cumW:z,spReal:d.weeks.map(w=>w.sp),inWindow:0,minReal:0,minPro:0,need0:0,need0Week:'',need500:0,need500Week:''};
+}
+function shortW(iso){return String(iso||'').replace(/\d{4}-/,'');}
+function needMessage(d){
+  const P=getPro(d);
+  const proNote=P.inWindow>0
+    ?` Las proformas dentro de la ventana suman <b>${M(P.inWindow)}</b>; si se confirman todas, el saldo mínimo sería <b>${M(P.minPro)}</b>.`
+    :' No hay proformas dentro de la ventana de 12 semanas.';
+  if(P.need0>0){
+    return{lvl:'bad',html:`<b>¿Qué necesitas?</b> Con solo OCs confirmadas el saldo cae a <b>${M(P.minReal)}</b>. Para mantener saldo ≥ $0 necesitas <b>${M(P.need0)}</b> adicionales confirmados antes de <b>${shortW(P.need0Week)}</b> · <b>${M(P.need500)}</b> para mantener el umbral de $500k.`+proNote};
+  }
+  if(P.need500>0){
+    return{lvl:'warn',html:`<b>¿Qué necesitas?</b> El saldo confirmado se mantiene positivo, pero baja a <b>${M(P.minReal)}</b>. Para mantener el umbral de $500k necesitas <b>${M(P.need500)}</b> adicionales confirmados antes de <b>${shortW(P.need500Week)}</b>.`+proNote};
+  }
+  return{lvl:'ok',html:`<b>¿Qué necesitas?</b> Con solo OCs confirmadas el saldo se mantiene sobre $500k las 12 semanas (mínimo <b>${M(P.minReal)}</b>).`+proNote};
+}
+function renderNeed(d){
+  const el=document.getElementById('need-line'); if(!el)return;
+  const m=needMessage(d);
+  el.className='need-line '+m.lvl;
+  el.innerHTML=m.html;
+}
+function toggleProLayer(el){
+  if(!saldoCh)return;
+  const idx=saldoCh.data.datasets.findIndex(ds=>ds._pro);
+  if(idx<0)return;
+  const vis=saldoCh.isDatasetVisible(idx);
+  saldoCh.setDatasetVisibility(idx,!vis);
+  saldoCh.update();
+  if(el)el.classList.toggle('off',vis);
+}
+
 function renderCharts(d){
   if(flowCh){flowCh.destroy();flowCh=null;}
   if(saldoCh){saldoCh.destroy();saldoCh=null;}
@@ -619,7 +698,8 @@ function renderCharts(d){
     }
     return[w.iso.replace(/\d{4}-/,''),''];
   });
-  const labelColors=d.weeks.map(w=>w.sp<THRESHOLD?(isLight?'#dc2626':'#f87171'):(isLight?'#64748b':'#64748b'));
+  const P=getPro(d);
+  const labelColors=P.spReal.map(v=>v<THRESHOLD?(isLight?'#dc2626':'#f87171'):(isLight?'#64748b':'#64748b'));
   const gc=isLight?'rgba(0,0,0,.07)':'rgba(255,255,255,.06)';
   const tc=isLight?'#64748b':'#64748b';
   const tf=v=>{const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6)return s+'$'+(a/1e6).toFixed(1)+'M';if(a>=1e3)return s+'$'+Math.round(a/1e3)+'k';return s+'$'+Math.round(a);};
@@ -628,7 +708,8 @@ function renderCharts(d){
   flowCh=new Chart(document.getElementById('flowChart'),{
     type:'bar',
     data:{labels,datasets:[
-      {label:'AR Cobro',    data:d.weeks.map(w=>w.inAR),   backgroundColor:'rgba(16,185,129,.82)',stack:'in'},
+      {label:'AR confirmado',data:d.weeks.map((w,i)=>Math.max(0,w.inAR-P.week[i])),backgroundColor:'rgba(16,185,129,.82)',stack:'in'},
+      {label:'AR proforma', data:P.week,                   backgroundColor:'rgba(16,185,129,.22)',borderColor:'rgba(16,185,129,.85)',borderWidth:{top:1.5,left:1.5,right:1.5,bottom:0},borderSkipped:false,stack:'in'},
       {label:'Crédito',     data:d.weeks.map(w=>w.inCred), backgroundColor:'rgba(79,135,255,.82)',stack:'in'},
       {label:'AP Pendiente',data:d.weeks.map(w=>-w.outAP), backgroundColor:'rgba(239,68,68,.68)', stack:'out'},
       {label:'Gastos',      data:d.weeks.map(w=>-w.outG),  backgroundColor:'rgba(245,158,11,.68)',stack:'out'},
@@ -647,8 +728,15 @@ function renderCharts(d){
     }
   });
 
-  const spData=d.weeks.map(w=>w.sp);
-  const minSP=Math.min(...spData,0);
+  const spData=P.spReal;                     // línea principal = solo OCs confirmadas
+  // + proformas: la línea nace la semana previa a la primera proforma y se separa desde ahí
+  const firstPro=P.cumW.findIndex(v=>v>0);
+  const spPro=d.weeks.map((w,i)=>(firstPro>=0&&i>=Math.max(0,firstPro-1))?w.sp:null);
+  const hasPro=P.inWindow>0;
+  const minSP=Math.min(...spData,...spPro.filter(v=>v!==null),0);
+  const proColor=isLight?'#7c3aed':'#a78bfa';
+  const legPro=document.getElementById('leg-pro');
+  if(legPro){legPro.classList.remove('off');legPro.style.display=hasPro?'':'none';}
 
   saldoCh=new Chart(document.getElementById('saldoChart'),{
     type:'line',
@@ -674,10 +762,27 @@ function renderCharts(d){
       pointBorderColor:isLight?'#ffffff':'#0b1120',
       pointBorderWidth:2,
       pointRadius:5.5,pointHoverRadius:8,pointHoverBorderWidth:3,
-      borderWidth:2,fill:true,tension:0.4
-    }]},
+      borderWidth:2,fill:true,tension:0.4,order:1
+    }].concat(hasPro?[{
+      label:'+ Proforma',_pro:true,
+      data:spPro,
+      borderColor:proColor,borderWidth:2,borderDash:[6,4],tension:0.4,
+      // banda "brecha proforma" entre ambas líneas
+      fill:{target:0,above:isLight?'rgba(124,58,237,.13)':'rgba(167,139,250,.16)',below:'rgba(0,0,0,0)'},
+      pointRadius:P.cumW.map(v=>v>0?4:0),pointHoverRadius:P.cumW.map(v=>v>0?7:0),
+      pointBackgroundColor:proColor,pointBorderColor:isLight?'#ffffff':'#0b1120',pointBorderWidth:2,
+      order:2
+    }]:[])},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>' Saldo: '+tf(c.raw)+(c.raw<THRESHOLD&&c.raw>=0?'  ⚠ bajo umbral':'')}}},
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{...tt,
+        filter:item=>!(item.dataset._pro&&!(P.cumW[item.dataIndex]>0)),
+        callbacks:{
+          label:c=>c.dataset._pro
+            ?' + Proforma: '+tf(c.raw)
+            :' Confirmado: '+tf(c.raw)+(c.raw<THRESHOLD&&c.raw>=0?'  ⚠ bajo umbral':'')+(c.raw<0?'  ⚠ negativo':''),
+          afterBody:items=>{const i=items[0]?.dataIndex;return(hasPro&&P.cumW[i]>0)?['Brecha proforma: '+tf(P.cumW[i])]:[];}
+        }}},
       scales:{
         x:{ticks:{color:(ctx)=>labelColors[ctx.index]||tc,font:{size:10},callback:(v,i)=>labels[i]},grid:{color:gc}},
         y:{ticks:{color:tc,font:{size:10},callback:tf},grid:{
@@ -852,6 +957,7 @@ async function loadAll(){
       'DATA_AP!A3:S501',        // [7] AP source data
       'DATA_AP!X3:X501',        // [8] AP Semana ISO
       'WEEKLY_SUMMARY!D2',      // [9] fecha última actualización saldo (escrita por onEdit)
+      'DATA_AR!M3:M501',        // [10] AR FLAG (excluidas de KPIs, igual que en el sheet)
     ],key);
 
     // ── Weekly summary + KPIs ──
@@ -883,14 +989,19 @@ async function loadAll(){
       .filter(r=>!isNomina(r));
 
     // ── AR rows ──
-    const arSrc=vr[5].values||[], arIso=vr[6].values||[];
+    const arSrc=vr[5].values||[], arIso=vr[6].values||[], arFlag=(vr[10]&&vr[10].values)||[];
     arRows=arSrc.map((r,i)=>{
       const total=pMXN(r[8]); if(total<=0) return null;
       let iso=String(arIso[i]?.[0]||'').trim();
       if(!iso){const cd=parseDateStr(String(r[9]||'').trim());if(cd)iso=isoWeekStr(cd);}
       const oc=String(r[2]||'').trim();
-      return{fecha:r[0]||'',cliente:r[1]||'',oc,desc:r[4]||'',total,fechaCobro:r[9]||'',iso,isProforma:oc.toUpperCase()==='PROFORMA'};
+      const colE=String(r[4]||'').trim();
+      // PROFORMA puede venir en col C (No. OC) o col E (Planta Destino)
+      const isProforma=oc.toUpperCase()==='PROFORMA'||colE.toUpperCase()==='PROFORMA';
+      const flagged=String(arFlag[i]?.[0]||'').trim().toUpperCase()==='FLAG';
+      return{fecha:r[0]||'',cliente:r[1]||'',oc,desc:colE,total,fechaCobro:r[9]||'',iso,isProforma,flagged};
     }).filter(Boolean);
+    dashData.pro=buildPro(dashData,arRows);
 
     // ── AP rows ──
     const apSrc=vr[7].values||[], apIso=vr[8].values||[];
@@ -968,7 +1079,9 @@ async function loadAll(){
 }
 
 // ── Render Flujo ──
-function renderFlujo(d){window._lastDash=d;renderKPIs(d);renderCharts(d);renderTable(d);}
+function renderFlujo(d){window._lastDash=d;
+  const tr=document.getElementById('tbl-range');
+  if(tr&&d.weeks.length)tr.textContent='Semanas '+shortW(d.weeks[0].iso)+' – '+shortW(d.weeks[d.weeks.length-1].iso);renderKPIs(d);renderCharts(d);renderNeed(d);renderTable(d);}
 
 // Animated count-up for KPI values
 function countUp(el,target,fmt){
@@ -995,19 +1108,23 @@ function lastFridayStr(){
   return `Al ${dd}/${mm}/${yy}`;
 }
 function renderKPIs(d){
+  const P=getPro(d);
+  const arConf=d.kpis.ar-P.total;      // AR solo OCs confirmadas
+  const netaReal=d.kpis.neta-P.total;  // Posición neta sin proformas
   const cfg=[
     {lbl:'Saldo Bancario', val:d.saldo,       cls:'c-blue',   sub:d.saldoFecha?('Al '+d.saldoFecha):lastFridayStr(), tab:'flujo'},
-    {lbl:'AR',             val:d.kpis.ar,     cls:'c-green',  sub:'por cobrar',                  tab:'ar'},
+    {lbl:'AR',             val:arConf,        cls:'c-green',  sub:P.total>0?`confirmado · <b>+${M(P.total)}</b> proforma`:'por cobrar', sub2:P.total>0?`total ${M(d.kpis.ar)}`:'', tab:'ar'},
     {lbl:'AP',             val:d.kpis.ap,     cls:'c-red',    sub:'por pagar',                   tab:'ap'},
     {lbl:'Gastos Fijos 12s',val:d.kpis.gastos,cls:'c-amber',  sub:'nómina + operativo + import', tab:'gastos'},
-    {lbl:'Posición Neta',  val:d.kpis.neta,   cls:'c-purple', sub:'AR – AP – Gastos',            tab:null},
+    {lbl:'Posición Neta',  val:netaReal,      cls:'c-purple', sub:P.total>0?`con proforma: <b>${M(d.kpis.neta)}</b>`:'AR – AP – Gastos', sub2:P.total>0?'confirmado · AR – AP – Gastos':'', risk:netaReal<0, tab:null},
   ];
   document.getElementById('kpi-grid').innerHTML=cfg.map((k,i)=>{
     const clickable=k.tab?`onclick="goTab('${k.tab}')" style="cursor:pointer" title="Ver ${k.lbl}"`:'';
     return `<div class="kpi ${k.cls}" ${clickable}>
-      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-lbl">${k.lbl}${k.risk?'<span class="kpi-risk">NEGATIVA</span>':''}</div>
       <div class="kpi-val" id="kpi-v-${i}">$0</div>
       <div class="kpi-sub">${k.sub}</div>
+      ${k.sub2?`<div class="kpi-sub2">${k.sub2}</div>`:''}
     </div>`;
   }).join('');
   // animate values
@@ -1041,17 +1158,26 @@ function exportCard(cardId,filename){
   const W=cssW+pad*2;
   const headerH=64;
   const kpiH=78, kpiGap=10;
+  const P=getPro(d);
   const kpis=[
-    {lbl:'SALDO BANCARIO', val:d.saldo,       colors:['#3d5fc4','#6285e3']},
-    {lbl:'AR',             val:d.kpis.ar,     colors:['#2f8f5b','#55b984']},
-    {lbl:'AP',             val:d.kpis.ap,     colors:['#b94a4a','#d97777']},
-    {lbl:'GASTOS FIJOS 12S',val:d.kpis.gastos,colors:['#e09a3e','#f0bc6b']},
-    {lbl:'POSICIÓN NETA',  val:d.kpis.neta,   colors:['#7558bf','#9d82dd']},
+    {lbl:'SALDO BANCARIO', val:d.saldo,              sub:d.saldoFecha?('Al '+d.saldoFecha):'',             colors:['#3d5fc4','#6285e3']},
+    {lbl:'AR',             val:d.kpis.ar-P.total,    sub:P.total>0?('confirmado · +'+M(P.total)+' proforma'):'por cobrar', colors:['#2f8f5b','#55b984']},
+    {lbl:'AP',             val:d.kpis.ap,            sub:'por pagar',                                        colors:['#b94a4a','#d97777']},
+    {lbl:'GASTOS FIJOS 12S',val:d.kpis.gastos,       sub:'nómina + operativo + import',                      colors:['#e09a3e','#f0bc6b']},
+    {lbl:'POSICIÓN NETA',  val:d.kpis.neta-P.total,  sub:P.total>0?('con proforma: '+M(d.kpis.neta)):'AR – AP – Gastos', colors:['#7558bf','#9d82dd']},
   ];
+  // "¿Qué necesitas?" en texto plano para el PNG
+  const needTxt=needMessage(d).html.replace(/<[^>]+>/g,'');
   const kpiW=Math.floor((W-pad*2-kpiGap*4)/5);
   const kpiSectionH=kpiH+18;
   const footerH=30;
-  const H=pad+headerH+kpiSectionH+cssH+footerH+pad;
+  // medir líneas del mensaje para reservar espacio
+  const mctx=document.createElement('canvas').getContext('2d');
+  mctx.font='12px -apple-system,Segoe UI,sans-serif';
+  const wrap=(ctx,txt,maxW)=>{const words=txt.split(' ');const lines=[];let ln='';words.forEach(wd=>{const t=ln?ln+' '+wd:wd;if(ctx.measureText(t).width>maxW&&ln){lines.push(ln);ln=wd;}else ln=t;});if(ln)lines.push(ln);return lines;};
+  const needLines=wrap(mctx,needTxt,cssW-28);
+  const needH=needLines.length*17+22;
+  const H=pad+headerH+kpiSectionH+cssH+14+needH+footerH+pad;
 
   const out=document.createElement('canvas');
   out.width=Math.round(W*s);
@@ -1101,6 +1227,14 @@ function exportCard(cardId,filename){
     c2.fillStyle='#ffffff';
     c2.font='700 17px -apple-system,Segoe UI,sans-serif';
     c2.fillText(M(k.val),x+11,kpiY+46);
+    if(k.sub){
+      c2.fillStyle='rgba(255,255,255,.78)';
+      c2.font='9px -apple-system,Segoe UI,sans-serif';
+      let st=k.sub;
+      while(c2.measureText(st).width>kpiW-20&&st.length>4)st=st.slice(0,-2);
+      if(st!==k.sub)st=st.slice(0,-1)+'…';
+      c2.fillText(st,x+11,kpiY+64);
+    }
   });
 
   // Chart card
@@ -1109,6 +1243,38 @@ function exportCard(cardId,filename){
   c2.fillStyle=isLight?'#ffffff':'#111827';
   c2.fill();
   c2.drawImage(canvas,pad,chartY,cssW,cssH);
+
+  // Leyenda (arriba a la derecha del encabezado)
+  {
+    const ly=pad+24, lx=W-pad;
+    c2.font='11px -apple-system,Segoe UI,sans-serif';
+    c2.textAlign='right';
+    c2.fillStyle=isLight?'#475569':'#94a3b8';
+    const t2='+ Proforma', t1='Confirmado';
+    c2.fillText(t2,lx,ly);
+    const w2=c2.measureText(t2).width;
+    c2.save();c2.strokeStyle=isLight?'#7c3aed':'#a78bfa';c2.lineWidth=2;c2.setLineDash([5,3]);
+    c2.beginPath();c2.moveTo(lx-w2-26,ly-4);c2.lineTo(lx-w2-6,ly-4);c2.stroke();c2.restore();
+    const x1=lx-w2-40;
+    c2.fillText(t1,x1,ly);
+    const w1=c2.measureText(t1).width;
+    c2.save();c2.strokeStyle=isLight?'#2563eb':'#4f87ff';c2.lineWidth=2;
+    c2.beginPath();c2.moveTo(x1-w1-26,ly-4);c2.lineTo(x1-w1-6,ly-4);c2.stroke();c2.restore();
+    c2.textAlign='left';
+  }
+
+  // "¿Qué necesitas?"
+  {
+    const ny=chartY+cssH+14;
+    const lvl=needMessage(d).lvl;
+    const accent=lvl==='bad'?'#dc2626':(lvl==='warn'?'#f59e0b':'#10b981');
+    rr(pad,ny,cssW,needH,8);
+    c2.fillStyle=isLight?'#ffffff':'#111827';c2.fill();
+    c2.fillStyle=accent;c2.fillRect(pad,ny+4,3,needH-8);
+    c2.fillStyle=isLight?'#334155':'#cbd5e1';
+    c2.font='12px -apple-system,Segoe UI,sans-serif';
+    needLines.forEach((ln,i)=>c2.fillText(ln,pad+16,ny+19+i*17));
+  }
 
   // Footer
   c2.fillStyle=isLight?'#94a3b8':'#64748b';
@@ -1195,21 +1361,23 @@ function renderAR(rows){
   container.innerHTML=weekOrder.map(iso=>{
     const wRows=weekMap[iso];
     const weekTotal=wRows.reduce((s,r)=>s+r.total,0);
-    const shortIso=iso.replace('2026-','');
+    const shortIso=iso.replace(/\d{4}-/,'');
     const dateRange=isoWeekToRange(iso);
 
     const rowsHtml=wRows.map(r=>{
       const isProforma=r.isProforma||(r.oc||'').toUpperCase()==='PROFORMA';
+      const ocTxt=(r.oc||'').toUpperCase()==='PROFORMA'?'':(r.oc||'');
       const ocDisplay=isProforma
-        ?`<span style="font-family:var(--mono);font-size:11px;color:var(--amber)">PROFORMA</span>`
+        ?`${ocTxt?`<span style="font-family:var(--mono);font-size:11px;color:var(--tx2);margin-right:6px">${ocTxt}</span>`:''}<span class="bdg-proforma">PROFORMA</span>`
         :`<span style="font-family:var(--mono);font-size:11px;color:var(--tx2)">${r.oc||'—'}</span>`;
+      const descTxt=String(r.desc||'').toUpperCase()==='PROFORMA'?'Proyección — pendiente de OC':(r.desc||'—');
       const clienteShort=(r.cliente||'').length>20?(r.cliente||'').slice(0,18)+'…':r.cliente||'—';
       const rowStyle=isProforma?'background:rgba(245,158,11,.04)':'';
       return `<tr style="${rowStyle}">
         <td class="al" style="font-family:var(--mono);font-size:11px;color:var(--tx3)">${fDate(r.fecha)}</td>
         <td class="al">${ocDisplay}</td>
         <td class="al" style="font-weight:500">${clienteShort}</td>
-        <td class="al" style="font-size:11px;color:var(--tx3);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.desc||'—'}</td>
+        <td class="al" style="font-size:11px;color:var(--tx3);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${descTxt}</td>
         <td style="color:var(--green);font-weight:500">${M(r.total)}</td>
       </tr>`;
     }).join('');
@@ -1288,7 +1456,7 @@ function renderAP(rows){
   container.innerHTML=weekOrder.map(iso=>{
     const wRows=weekMap[iso];
     const weekTotal=wRows.reduce((s,r)=>s+r.total,0);
-    const shortIso=iso.replace('2026-','');
+    const shortIso=iso.replace(/\d{4}-/,'');
     const dateRange=isoWeekToRange(iso);
 
     const rowsHtml=wRows.map(r=>{
